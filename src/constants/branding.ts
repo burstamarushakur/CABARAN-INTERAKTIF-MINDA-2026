@@ -1,0 +1,7 @@
+export const BRANDING = {
+  APP_NAME_FULL: 'CABARAN INTERAKTIF MINDA TAHUN 2026',
+  APP_NAME_SHORT: 'CIM 2026',
+  SCHOOL_LOGO_URL: 'https://i.postimg.cc/bJ9vLS0y/CIM-2026.png',
+  PROGRAM_LOGO_URL: 'https://i.postimg.cc/bJ9vLS0y/CIM-2026.png',
+  PRICE_PER_STUDENT: 10,
+};

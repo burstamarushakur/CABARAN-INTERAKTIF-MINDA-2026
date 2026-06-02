@@ -1,0 +1,6 @@
+{
+  "name": "CABARAN INTERAKTIF MINDA TAHUN 2026",
+  "description": "Platform kuiz atas talian rasmi untuk murid-murid menguji minda dalam cabaran unit beruniform (CIM 2026).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
