@@ -20,6 +20,7 @@ import {
 import { registrationService } from '../services/registrationService';
 import { jsPDF } from 'jspdf';
 import { motion } from 'motion/react';
+import { PPD_BY_STATE } from '../data/ppdList';
 
 const fetchImageAsBase64 = (url: string): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -225,7 +226,7 @@ export default function RegistrationPage() {
   // Step 2 validation
   const validateStep2 = () => {
     if (!state) return 'Sila pilih Negeri.';
-    if (!ppd.trim()) return 'Sila isi nama PPD.';
+    if (!ppd.trim()) return 'Sila pilih PPD.';
     if (!schoolName.trim()) return 'Sila isi nama Sekolah.';
     if (!schoolCode.trim()) return 'Sila isi kod Sekolah.';
     if (!teacherName.trim()) return 'Sila isi nama Guru Pengiring.';
@@ -820,9 +821,12 @@ export default function RegistrationPage() {
               <div>
                 <label className="block text-[11px] font-bold text-slate-400 uppercase mb-2">1. Pilih Negeri *</label>
                 <select 
-                  className="w-full p-3 border rounded-xl border-slate-300 text-xs font-bold bg-white text-slate-750 focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
+                  className="w-full p-3 border rounded-xl border-slate-300 text-xs font-bold bg-white text-slate-755 focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
                   value={state}
-                  onChange={(e) => setState(e.target.value)}
+                  onChange={(e) => {
+                    setState(e.target.value);
+                    setPpd('');
+                  }}
                 >
                   <option value="">-- PILIH NEGERI --</option>
                   {STATES.map((st) => (
@@ -833,13 +837,20 @@ export default function RegistrationPage() {
 
               <div>
                 <label className="block text-[11px] font-bold text-slate-400 uppercase mb-2">2. Pejabat Pendidikan Daerah (PPD) *</label>
-                <input 
-                  type="text" 
-                  placeholder="CONTOH PPD MUAR"
+                <select 
+                  className="w-full p-3 border rounded-xl border-slate-300 text-xs font-bold bg-white text-slate-755 focus:ring-2 focus:ring-emerald-500 focus:outline-hidden disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed"
                   value={ppd}
-                  onChange={(e) => setPpd(e.target.value.toUpperCase())}
-                  className="w-full p-3 border rounded-xl border-slate-300 text-xs font-bold text-slate-755 focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
-                />
+                  onChange={(e) => setPpd(e.target.value)}
+                  disabled={!state}
+                >
+                  <option value="">{state ? "-- PILIH PPD --" : "Pilih negeri terlebih dahulu"}</option>
+                  {state && PPD_BY_STATE[state]?.map((ppdName) => (
+                    <option key={ppdName} value={ppdName}>{ppdName}</option>
+                  ))}
+                </select>
+                <p className="text-[10px] text-slate-400 mt-1.5 font-medium">
+                  Sila pilih PPD daripada senarai rasmi bagi memastikan data pendaftaran seragam.
+                </p>
               </div>
 
               <div>

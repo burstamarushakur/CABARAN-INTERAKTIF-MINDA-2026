@@ -1,0 +1,194 @@
+export const PPD_BY_STATE: Record<string, string[]> = {
+  "JOHOR": [
+    "PPD JOHOR BAHRU",
+    "PPD PONTIAN",
+    "PPD SEGAMAT",
+    "PPD KOTA TINGGI",
+    "PPD MUAR",
+    "PPD BATU PAHAT",
+    "PPD MERSING",
+    "PPD KLUANG",
+    "PPD KULAI",
+    "PPD PASIR GUDANG",
+    "PPD TANGKAK"
+  ],
+
+  "KEDAH": [
+    "PPD SIK",
+    "PPD PENDANG",
+    "PPD PADANG TERAP",
+    "PPD YAN",
+    "PPD LANGKAWI",
+    "PPD KUALA MUDA",
+    "PPD BALING",
+    "PPD KUBANG PASU",
+    "PPD KOTA SETAR",
+    "PPD KULIM BANDAR BAHARU"
+  ],
+
+  "KELANTAN": [
+    "PPD KOTA BHARU",
+    "PPD PASIR MAS",
+    "PPD PASIR PUTEH",
+    "PPD TANAH MERAH",
+    "PPD KUALA KRAI",
+    "PPD GUA MUSANG",
+    "PPD BACHOK",
+    "PPD TUMPAT",
+    "PPD MACHANG",
+    "PPD JELI"
+  ],
+
+  "MELAKA": [
+    "PPD JASIN",
+    "PPD ALOR GAJAH",
+    "PPD MELAKA TENGAH"
+  ],
+
+  "NEGERI SEMBILAN": [
+    "PPD KUALA PILAH",
+    "PPD JEMPOL DAN JELEBU",
+    "PPD SEREMBAN",
+    "PPD REMBAU",
+    "PPD TAMPIN",
+    "PPD PORT DICKSON"
+  ],
+
+  "PAHANG": [
+    "PPD BENTONG",
+    "PPD RAUB",
+    "PPD CAMERON HIGHLANDS",
+    "PPD TEMERLOH",
+    "PPD JERANTUT",
+    "PPD ROMPIN",
+    "PPD LIPIS",
+    "PPD MARAN",
+    "PPD KUANTAN",
+    "PPD BERA",
+    "PPD PEKAN"
+  ],
+
+  "PERAK": [
+    "PPD MUALLIM",
+    "PPD BAGAN DATUK",
+    "PPD KINTA SELATAN",
+    "PPD KINTA UTARA",
+    "PPD PERAK TENGAH",
+    "PPD HULU PERAK",
+    "PPD LARUT MATANG DAN SELAMA",
+    "PPD HILIR PERAK",
+    "PPD KUALA KANGSAR",
+    "PPD KERIAN",
+    "PPD BATANG PADANG",
+    "PPD MANJUNG"
+  ],
+
+  "PERLIS": [
+    "JPN PERLIS"
+  ],
+
+  "PULAU PINANG": [
+    "PPD TIMUR LAUT",
+    "PPD SEBERANG PERAI TENGAH",
+    "PPD BARAT DAYA",
+    "PPD SEBERANG PERAI SELATAN",
+    "PPD SEBERANG PERAI UTARA"
+  ],
+
+  "SABAH": [
+    "PPD BEAUFORT",
+    "PPD BELURAN",
+    "PPD KENINGAU",
+    "PPD KINABATANGAN",
+    "PPD KOTA BELUD",
+    "PPD KOTA KINABALU",
+    "PPD KOTA MARUDU",
+    "PPD KUALA PENYU",
+    "PPD KUDAT",
+    "PPD KUNAK",
+    "PPD LAHAD DATU",
+    "PPD PAPAR",
+    "PPD PENAMPANG",
+    "PPD PENSIANGAN",
+    "PPD PITAS",
+    "PPD RANAU",
+    "PPD SANDAKAN",
+    "PPD SEMPORNA",
+    "PPD SIPITANG",
+    "PPD TAMBUNAN",
+    "PPD TAWAU",
+    "PPD TELUPID/TONGOD",
+    "PPD TENOM",
+    "PPD TUARAN"
+  ],
+
+  "SARAWAK": [
+    "PPD KUCHING",
+    "PPD MERADONG",
+    "PPD BAU",
+    "PPD KAPIT",
+    "PPD PADAWAN",
+    "PPD BELAGA",
+    "PPD LUNDU",
+    "PPD SONG",
+    "PPD SRI AMAN",
+    "PPD SAMARAHAN",
+    "PPD LUBOK ANTU",
+    "PPD SERIAN",
+    "PPD SIBU",
+    "PPD SIMUNJAN",
+    "PPD KANOWIT",
+    "PPD BINTULU",
+    "PPD SELANGAU",
+    "PPD TATAU / SEBAUH",
+    "PPD MIRI",
+    "PPD BARAM",
+    "PPD BETONG",
+    "PPD SUBIS",
+    "PPD SARATOK",
+    "PPD LIMBANG",
+    "PPD MUKAH",
+    "PPD LAWAS",
+    "PPD DALAT",
+    "PPD SARIKEI",
+    "PPD DARO",
+    "PPD JULAU"
+  ],
+
+  "SELANGOR": [
+    "PPD PETALING PERDANA",
+    "PPD KUALA LANGAT",
+    "PPD PETALING UTAMA",
+    "PPD KUALA SELANGOR",
+    "PPD KLANG",
+    "PPD SABAK BERNAM",
+    "PPD HULU LANGAT",
+    "PPD HULU SELANGOR",
+    "PPD GOMBAK",
+    "PPD SEPANG"
+  ],
+
+  "TERENGGANU": [
+    "PPD KUALA TERENGGANU",
+    "PPD BESUT",
+    "PPD DUNGUN",
+    "PPD MARANG",
+    "PPD KEMAMAN",
+    "PPD SETIU",
+    "PPD HULU TERENGGANU"
+  ],
+
+  "WILAYAH PERSEKUTUAN KUALA LUMPUR": [
+    "PPW BANGSAR / PUDU",
+    "PPW KERAMAT",
+    "PPW SENTUL"
+  ],
+
+  "WILAYAH PERSEKUTUAN PUTRAJAYA": [
+    "JPWP PUTRAJAYA"
+  ],
+
+  "WILAYAH PERSEKUTUAN LABUAN": [
+    "JPWP LABUAN"
+  ]
+};
