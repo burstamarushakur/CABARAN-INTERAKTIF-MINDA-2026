@@ -57,8 +57,70 @@ export const registrationService = {
     }
   },
 
+  // Dapatkan tetapan pendaftaran secara umum (public)
+  async getRegistrationSettings(): Promise<{
+    mode: string;
+    deadline: string;
+    is_open: boolean;
+    status_label: string;
+    message: string;
+  }> {
+    try {
+      const { data, error } = await supabase.rpc('get_registration_settings_public');
+      
+      if (error) {
+        console.error('Error fetching registration settings from RPC:', error);
+        throw error;
+      }
+
+      const row = Array.isArray(data) ? data[0] : data;
+      return {
+        mode: row?.mode || 'auto',
+        deadline: row?.deadline || '2026-06-19T18:00:00+08:00',
+        is_open: row?.is_open ?? true,
+        status_label: row?.status_label || 'AUTO',
+        message: row?.message || ''
+      };
+    } catch (err) {
+      console.warn('Fallback settings logic due to error:', err);
+      // Fallback local logic based on target timeline (19 Jun 2026 18:00 +08:00)
+      const now = new Date();
+      const deadline = new Date('2026-06-19T18:00:00+08:00');
+      const is_open = now <= deadline;
+      return {
+        mode: 'auto',
+        deadline: '2026-06-19T18:00:00+08:00',
+        is_open,
+        status_label: 'AUTO',
+        message: is_open 
+          ? 'Pendaftaran dibuka (Mod Auto). Tarikh akhir: 19 Jun 2026 jam 1800.'
+          : 'Pendaftaran telah ditutup secara automatik pada 19 Jun 2026 jam 1800.'
+      };
+    }
+  },
+
+  // Admin update mode
+  async adminUpdateRegistrationMode(mode: 'auto' | 'open' | 'closed'): Promise<any> {
+    const { data, error } = await supabase.rpc('admin_update_registration_mode', {
+      input_mode: mode
+    });
+
+    if (error) {
+      console.error('Error updating registration mode:', error);
+      throw new Error(error.message || 'Gagal mengemas kini mod pendaftaran.');
+    }
+
+    return data;
+  },
+
   // Submit registration through RPC
   async submitRegistration(params: SubmitRegistrationParams) {
+    // 1. Double check before submit
+    const settings = await this.getRegistrationSettings();
+    if (!settings.is_open) {
+      throw new Error('Pendaftaran telah ditutup.');
+    }
+
     const { data, error } = await supabase.rpc('submit_registration', {
       input_state: params.input_state,
       input_ppd: params.input_ppd,
@@ -86,6 +148,10 @@ export const registrationService = {
 
       if (message.includes('INVALID_STUDENT_DATA')) {
         throw new Error('Maklumat murid tidak lengkap atau No. MyKid/MyKad tidak sah. Sila semak semula.');
+      }
+
+      if (message.includes('Pendaftaran telah ditutup') || message.includes('registration_control_closed') || message.includes('trg_check_registration_status')) {
+        throw new Error('Pendaftaran telah ditutup.');
       }
 
       throw new Error('Gagal menghantar pendaftaran. Sila semak maklumat dan cuba semula.');

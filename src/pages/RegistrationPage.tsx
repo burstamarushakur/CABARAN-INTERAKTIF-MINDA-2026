@@ -86,6 +86,8 @@ export default function RegistrationPage() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [checkingOpenStatus, setCheckingOpenStatus] = useState(true);
+  const [isRegOpen, setIsRegOpen] = useState(true);
 
   // Form State - Step 2 (School & Teacher)
   const [state, setState] = useState('');
@@ -110,6 +112,21 @@ export default function RegistrationPage() {
   const [consented, setConsented] = useState(false);
 
   const [draftRestored, setDraftRestored] = useState(false);
+
+  useEffect(() => {
+    const checkOpenStatus = async () => {
+      try {
+        const settings = await registrationService.getRegistrationSettings();
+        setIsRegOpen(settings.is_open);
+      } catch (err) {
+        console.error('Error fetching settings on registration page:', err);
+        setIsRegOpen(true); // default fallback
+      } finally {
+        setCheckingOpenStatus(false);
+      }
+    };
+    checkOpenStatus();
+  }, []);
 
   useEffect(() => {
     try {
@@ -568,6 +585,69 @@ export default function RegistrationPage() {
 
   const totalPayment = students.length * 10;
 
+  if (checkingOpenStatus) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-400 font-extrabold uppercase tracking-wider text-[11px]">Menyemak Status Pendaftaran...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isRegOpen) {
+    return (
+      <div className="min-h-screen bg-slate-50 font-sans flex flex-col">
+        {/* Mini top bar header */}
+        <header className="bg-white border-b border-slate-200 sticky top-0 z-50 py-3 px-6 shadow-xs flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img 
+              src="https://i.postimg.cc/bJ9vLS0y/CIM-2026.png" 
+              alt="CIM 2026" 
+              className="h-10 w-auto object-contain mix-blend-multiply"
+            />
+            <div>
+              <span className="text-xs font-bold text-blue-900 block tracking-tight uppercase">Portal Pendaftaran</span>
+              <span className="text-[10px] text-slate-400 font-extrabold uppercase font-sans">Cabaran Interaktif Minda 2026</span>
+            </div>
+          </div>
+          <button 
+            onClick={() => navigate('/')}
+            className="text-xs font-bold text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 tracking-tight transition cursor-pointer"
+          >
+            Laman Utama
+          </button>
+        </header>
+
+        <main className="flex-1 w-full max-w-md mx-auto px-4 py-16 flex items-center justify-center">
+          <motion.div 
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-3xl p-8 shadow-xl border border-slate-200 text-center w-full"
+          >
+            <div className="w-16 h-16 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-red-100 shadow-xs">
+              <Info className="w-8 h-8" />
+            </div>
+            
+            <h2 className="text-2xl font-black text-slate-800 mb-3 font-sans">Pendaftaran Ditutup</h2>
+            
+            <p className="text-xs text-slate-500 leading-relaxed mb-8 font-semibold">
+              Pendaftaran telah ditutup oleh pihak penganjur. Pendaftaran akan ditutup pada 19 Jun 2026 jam 1800 atau lebih awal sekiranya jumlah penyertaan telah mencapai sasaran yang ditetapkan.
+            </p>
+
+            <button
+              onClick={() => navigate('/')}
+              className="w-full py-3.5 bg-gradient-to-r from-slate-800 to-slate-950 hover:from-slate-900 hover:to-black text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all duration-200 shadow-md cursor-pointer"
+            >
+              Kembali ke Laman Utama
+            </button>
+          </motion.div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans flex flex-col">
       {/* Mini top bar header */}
@@ -774,6 +854,16 @@ export default function RegistrationPage() {
                   ⚠️ Surat maklum balas BSKK akan dimuat naik oleh pihak penganjur dalam masa terdekat.
                 </div>
               )}
+            </div>
+
+            {/* Tarikh Tutup Pendaftaran Banner */}
+            <div className="bg-red-50 border-2 border-red-200/60 rounded-3xl p-5 mb-8 text-xs font-semibold">
+              <h4 className="text-red-950 font-extrabold mb-1.5 uppercase tracking-wide flex items-center gap-2 text-sm">
+                <span className="text-base">📅</span> Tarikh Tutup Pendaftaran
+              </h4>
+              <p className="text-red-900 leading-relaxed font-bold uppercase tracking-tight text-[11px] sm:text-xs">
+                Pendaftaran akan ditutup pada 19 Jun 2026 jam 1800 atau lebih awal sekiranya jumlah penyertaan telah mencapai sasaran yang ditetapkan oleh pihak penganjur.
+              </p>
             </div>
 
             {/* Checkbox input required */}

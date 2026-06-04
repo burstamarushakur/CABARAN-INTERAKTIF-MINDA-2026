@@ -42,6 +42,51 @@ export default function AdminDashboardPage() {
   const [statusFilter, setStatusFilter] = useState('ALL'); // ALL, ACTIVE, PENDING, BLOCKED
   const [completionFilter, setCompletionFilter] = useState('ALL'); // ALL, COMPLETED, NOT_COMPLETED
 
+  // Registration Control states in Admin
+  const [adminRegSettings, setAdminRegSettings] = useState<{ mode: string; deadline: string; is_open: boolean; status_label: string; message: string; loading: boolean }>({
+    mode: 'auto',
+    deadline: '2026-06-19T18:00:00+08:00',
+    is_open: true,
+    status_label: 'AUTO',
+    message: '',
+    loading: true
+  });
+  const [modalType, setModalType] = useState<'open' | 'closed' | 'auto' | null>(null);
+  const [isUpdatingMode, setIsUpdatingMode] = useState(false);
+
+  const fetchAdminRegSettings = async () => {
+    try {
+      const settings = await registrationService.getRegistrationSettings();
+      setAdminRegSettings({
+        ...settings,
+        loading: false
+      });
+    } catch (err) {
+      console.error('Failed to fetch registration settings in admin panel:', err);
+      setAdminRegSettings(prev => ({ ...prev, loading: false }));
+    }
+  };
+
+  const handleUpdateRegistrationMode = async (mode: 'auto' | 'open' | 'closed') => {
+    setIsUpdatingMode(true);
+    try {
+      await registrationService.adminUpdateRegistrationMode(mode);
+      setSuccessToast(`Mod pendaftaran berjaya ditukar ke ${mode.toUpperCase()}!`);
+      setTimeout(() => setSuccessToast(''), 3000);
+      await fetchAdminRegSettings();
+    } catch (err: any) {
+      console.error('Failed to update registration mode:', err);
+      alert(err.message || 'Gagal mengemas kini mod pendaftaran. Sila pastikan SQL Patch telah dijalankan di Supabase SQL Editor anda.');
+    } finally {
+      setIsUpdatingMode(false);
+      setModalType(null);
+    }
+  };
+
+  useEffect(() => {
+    fetchAdminRegSettings();
+  }, []);
+
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
@@ -1398,6 +1443,102 @@ export default function AdminDashboardPage() {
                           <div className="text-2xl font-black text-teal-900">{computedStats.totalPpds}</div>
                         </div>
                       </div>
+
+                      {/* Section: Tetapan Pendaftaran (Admin Control Panel) */}
+                      <div className="bg-white border border-slate-200/90 rounded-[2rem] p-6 sm:p-8 shadow-xs relative mt-6">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-slate-100 pb-6 mb-6">
+                          <div>
+                            <h3 className="text-lg font-black text-slate-800 font-sans tracking-tight mb-1">Tetapan Pendaftaran</h3>
+                            <p className="text-xs text-slate-400 font-medium max-w-xl">
+                              Had kemasukan pendaftaran kelompok bagi pihak sekolah, guru pengiring dan calon ujian minda secara automatik atau manual.
+                            </p>
+                          </div>
+                          
+                          <div className="flex flex-wrap gap-2">
+                            <span className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${
+                              adminRegSettings.is_open 
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
+                                : 'bg-red-50 text-red-700 border-red-100'
+                            }`}>
+                              Status Am: {adminRegSettings.is_open ? 'DIBUKA' : 'DITUTUP'}
+                            </span>
+                            <span className="px-3 py-1.5 rounded-full text-[10px] bg-slate-50 border border-slate-150 text-slate-600 font-black uppercase tracking-wider">
+                              Mod: {
+                                adminRegSettings.mode === 'open' ? 'BUKA MANUAL' : 
+                                adminRegSettings.mode === 'closed' ? 'TUTUP MANUAL' : 'AUTO'
+                              }
+                            </span>
+                          </div>
+                        </div>
+
+                        {adminRegSettings.loading ? (
+                          <div className="text-slate-400 text-xs italic text-center py-6">
+                            Memproses tetapan semasa...
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+                            <div className="md:col-span-8 space-y-4">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="p-4 bg-slate-50 border border-slate-150 rounded-2xl">
+                                  <div className="text-[9px] text-slate-400 font-extrabold uppercase tracking-widest mb-1">Status Semasa Pendaftaran</div>
+                                  <div className={`text-base font-black uppercase font-sans tracking-tight ${
+                                    adminRegSettings.is_open ? 'text-emerald-700' : 'text-red-700'
+                                  }`}>
+                                    {adminRegSettings.is_open ? '● DIBUKA' : '● DITUTUP'}
+                                  </div>
+                                </div>
+                                <div className="p-4 bg-slate-50 border border-slate-150 rounded-2xl">
+                                  <div className="text-[9px] text-slate-405 font-extrabold uppercase tracking-widest mb-1">Mod Semasa</div>
+                                  <div className="text-base font-black text-slate-800 uppercase font-sans tracking-tight">
+                                    {adminRegSettings.mode === 'open' && 'BUKA MANUAL'}
+                                    {adminRegSettings.mode === 'closed' && 'TUTUP MANUAL'}
+                                    {adminRegSettings.mode === 'auto' && 'AUTO'}
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="p-4 bg-slate-50 border border-slate-150 rounded-2xl space-y-2">
+                                <div className="text-[9px] text-slate-400 font-extrabold uppercase tracking-widest leading-none">Tarikh Tutup Automatik (Sistem)</div>
+                                <div className="text-xs font-bold text-slate-700">
+                                  19 Jun 2026 jam 1800 (Waktu Malaysia UTC+8)
+                                </div>
+                                <p className="text-[11px] text-slate-450 leading-relaxed font-medium">
+                                  Mod Auto akan menutup pendaftaran secara automatik pada 19 Jun 2026 jam 1800. Admin masih boleh membuka atau menutup pendaftaran secara manual sekiranya perlu.
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Control Buttons */}
+                            <div className="md:col-span-4 flex flex-col gap-2.5 w-full">
+                              <div className="text-[9px] text-slate-400 font-extrabold uppercase tracking-widest px-1">Tindakan Manual</div>
+                              
+                              <button
+                                type="button"
+                                onClick={() => setModalType('open')}
+                                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[10px] uppercase tracking-wider rounded-xl transition cursor-pointer shadow-sm text-center"
+                              >
+                                Buka Pendaftaran
+                              </button>
+                              
+                              <button
+                                type="button"
+                                onClick={() => setModalType('closed')}
+                                className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-extrabold text-[10px] uppercase tracking-wider rounded-xl transition cursor-pointer shadow-sm text-center"
+                              >
+                                Tutup Pendaftaran
+                              </button>
+                              
+                              <button
+                                type="button"
+                                onClick={() => setModalType('auto')}
+                                className="w-full py-3 bg-slate-800 hover:bg-slate-900 text-white font-extrabold text-[10px] uppercase tracking-wider rounded-xl transition cursor-pointer shadow-sm text-center"
+                              >
+                                Tetapkan Semula Kepada Auto
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
 
@@ -2585,6 +2726,55 @@ export default function AdminDashboardPage() {
                   </>
                 ) : (
                   'Tolak Pendaftaran'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal: Custom Registration Mode Updates */}
+      {modalType && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-150">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 border border-slate-200 shadow-2xl animate-in zoom-in-95 duration-150 text-left">
+            <h3 className="text-xl font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2 font-sans tracking-tight">
+              {modalType === 'open' && 'Buka Pendaftaran?'}
+              {modalType === 'closed' && 'Tutup Pendaftaran?'}
+              {modalType === 'auto' && 'Tetapkan Semula Kepada Auto?'}
+            </h3>
+            
+            <div className="my-6">
+              <p className="text-sm text-slate-600 leading-relaxed font-semibold">
+                {modalType === 'open' && 'Tindakan ini akan membuka semula borang pendaftaran kepada pengguna. Gunakan fungsi ini hanya jika pihak penganjur ingin membenarkan pendaftaran baharu.'}
+                {modalType === 'closed' && 'Tindakan ini akan menutup borang pendaftaran kepada pengguna. Button pendaftaran masih dipaparkan, tetapi pengguna tidak boleh meneruskan pendaftaran.'}
+                {modalType === 'auto' && 'Sistem akan mengikut tarikh tutup automatik iaitu 19 Jun 2026 jam 1800.'}
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 justify-end pt-4 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setModalType(null)}
+                disabled={isUpdatingMode}
+                className="w-full sm:w-auto px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-xl text-xs transition-colors duration-200 cursor-pointer uppercase tracking-wider text-center"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={() => handleUpdateRegistrationMode(modalType)}
+                disabled={isUpdatingMode}
+                className={`w-full sm:w-auto px-5 py-2.5 text-white font-extrabold rounded-xl text-xs transition-colors duration-200 cursor-pointer uppercase tracking-wider text-center shadow-xs ${
+                  modalType === 'closed' 
+                    ? 'bg-red-600 hover:bg-red-700 shadow-red-100' 
+                    : modalType === 'open'
+                      ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-100'
+                      : 'bg-blue-600 hover:bg-blue-700 shadow-blue-100'
+                }`}
+              >
+                {isUpdatingMode ? 'Sedang Dikemaskini...' : (
+                  modalType === 'open' ? 'Ya, Buka Pendaftaran' : 
+                  modalType === 'closed' ? 'Ya, Tutup Pendaftaran' : 'Ya, Tetapkan Auto'
                 )}
               </button>
             </div>

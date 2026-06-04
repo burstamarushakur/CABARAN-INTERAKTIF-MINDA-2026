@@ -4,12 +4,18 @@ import Header from '../components/Header';
 import { Settings, LogIn, FileText, Info, UserPlus, Search } from 'lucide-react';
 import { BRANDING } from '../constants/branding';
 import { quizService } from '../services/quizService';
+import { registrationService } from '../services/registrationService';
 import { motion } from 'motion/react';
 
 export default function LandingPage() {
   const navigate = useNavigate();
   const [top5, setTop5] = React.useState<any[] | null>(null);
   const [loadingTop5, setLoadingTop5] = React.useState(true);
+  const [regSettings, setRegSettings] = React.useState<{ is_open: boolean; loading: boolean }>({
+    is_open: true,
+    loading: true
+  });
+  const [showClosedModal, setShowClosedModal] = React.useState(false);
 
   React.useEffect(() => {
     const fetchTop5 = async () => {
@@ -24,6 +30,25 @@ export default function LandingPage() {
       }
     };
     fetchTop5();
+  }, []);
+
+  React.useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const settings = await registrationService.getRegistrationSettings();
+        setRegSettings({
+          is_open: settings.is_open,
+          loading: false
+        });
+      } catch (err) {
+        console.error('Failed to load settings:', err);
+        setRegSettings({
+          is_open: true, // fallback to open, DB trigger protects anyway
+          loading: false
+        });
+      }
+    };
+    fetchSettings();
   }, []);
 
   const containerVariants = {
@@ -104,24 +129,73 @@ export default function LandingPage() {
             {/* Pendaftaran Sekolah/Peserta */}
             <motion.div 
               variants={itemVariants}
-              whileHover={{ y: -8, scale: 1.015, borderColor: '#10b981', boxShadow: '0 25px 45px -15px rgba(16, 185, 129, 0.14)' }}
-              whileTap={{ scale: 0.995 }}
-              onClick={() => navigate('/registration')}
-              className="bg-white/95 p-7 sm:p-8 rounded-[2rem] border border-slate-200/80 shadow-[0_15px_35px_-8px_rgba(0,0,0,0.02)] hover:border-emerald-400 group cursor-pointer flex flex-col items-center text-center transition-all duration-300 bg-gradient-to-b from-white to-slate-50/10"
+              whileHover={regSettings.is_open ? { y: -8, scale: 1.015, borderColor: '#10b981', boxShadow: '0 25px 45px -15px rgba(16, 185, 129, 0.14)' } : {}}
+              whileTap={regSettings.is_open ? { scale: 0.995 } : {}}
+              onClick={() => {
+                if (regSettings.loading) return;
+                if (!regSettings.is_open) {
+                  setShowClosedModal(true);
+                } else {
+                  navigate('/registration');
+                }
+              }}
+              className={`bg-white/95 p-7 sm:p-8 rounded-[2rem] border shadow-[0_15px_35px_-8px_rgba(0,0,0,0.02)] group cursor-pointer flex flex-col items-center text-center transition-all duration-300 bg-gradient-to-b from-white to-slate-50/10 relative ${
+                regSettings.is_open 
+                  ? 'border-slate-200/80 hover:border-emerald-400' 
+                  : 'border-slate-200/50 opacity-80 cursor-default'
+              }`}
               id="register-card"
             >
-              <div className="w-16 h-16 bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-2xl flex items-center justify-center mb-5 text-emerald-600 ring-4 ring-emerald-50 border border-emerald-100/85 group-hover:scale-110 group-hover:from-emerald-600 group-hover:to-emerald-500 group-hover:text-white transition-all duration-300 shadow-[0_4px_12px_rgba(16,185,129,0.05)]">
+              {/* Badge "Pendaftaran Ditutup" */}
+              {!regSettings.is_open && !regSettings.loading && (
+                <div className="absolute top-4 right-4 bg-red-100 text-red-750 text-[9px] font-extrabold uppercase px-3 py-1 rounded-full border border-red-200 shadow-xs tracking-wider">
+                  Pendaftaran Ditutup
+                </div>
+              )}
+
+              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-5 ring-4 border transition-all duration-300 shadow-[0_4px_12px_rgba(16,185,129,0.05)] ${
+                regSettings.is_open
+                  ? 'bg-gradient-to-br from-emerald-50 to-emerald-100/50 text-emerald-600 ring-emerald-50 border-emerald-100/85 group-hover:scale-110 group-hover:from-emerald-600 group-hover:to-emerald-500 group-hover:text-white'
+                  : 'bg-slate-100 text-slate-400 ring-slate-50 border-slate-200'
+              }`}>
                 <UserPlus className="w-6 h-6" />
               </div>
-              <h3 className="text-[19px] font-black text-slate-800 mb-2 transition-colors duration-300 group-hover:text-emerald-950 font-sans tracking-tight">Pendaftaran Sekolah / Peserta</h3>
-              <p className="text-[12px] text-slate-450 font-medium leading-relaxed mb-6 flex-1 px-3">Butiran sekolah, pendaftaran maklumat guru pengiring, serta pendaftaran kelompok calon penilaian minda.</p>
+              <h3 className="text-[19px] font-black text-slate-800 mb-2 transition-colors duration-300 font-sans tracking-tight group-hover:text-emerald-950">
+                Pendaftaran Sekolah / Peserta
+              </h3>
+              <p className="text-[12px] text-slate-450 font-medium leading-relaxed mb-4 flex-1 px-3">
+                Butiran sekolah, pendaftaran maklumat guru pengiring, serta pendaftaran kelompok calon penilaian minda.
+              </p>
+
+              {/* Display small note if open or closed */}
+              {regSettings.is_open ? (
+                <p className="text-[10px] text-emerald-600/70 font-semibold mb-3 leading-normal max-w-sm px-2">
+                  Pendaftaran ditutup pada 19 Jun 2026 jam 1800 atau lebih awal sekiranya sasaran peserta telah dicapai.
+                </p>
+              ) : (
+                <p className="text-[10px] text-red-600/70 font-semibold mb-3 leading-normal max-w-sm px-2">
+                  Pendaftaran telah ditutup oleh pihak penganjur.
+                </p>
+              )}
+
               <motion.button 
-                whileHover={{ translateY: -2, boxShadow: '0 8px 25px rgba(16,185,129,0.3)' }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full py-3.5 bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 hover:opacity-95 text-white rounded-full font-extrabold text-[11px] uppercase tracking-wider transition-all duration-300 cursor-pointer shadow-md shadow-emerald-600/10 hover:shadow-emerald-500/25 border border-emerald-500/10" 
+                whileHover={regSettings.is_open ? { translateY: -2, boxShadow: '0 8px 25px rgba(16,185,129,0.3)' } : {}}
+                whileTap={regSettings.is_open ? { scale: 0.98 } : {}}
+                className={`w-full py-3.5 text-white rounded-full font-extrabold text-[11px] uppercase tracking-wider transition-all duration-300 border ${
+                  regSettings.is_open
+                    ? 'bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 hover:opacity-95 shadow-md shadow-emerald-600/10 hover:shadow-emerald-500/25 border-emerald-500/10 cursor-pointer'
+                    : 'bg-slate-300 border-slate-200 text-slate-100 cursor-default shadow-none pointer-events-none'
+                }`}
                 id="btn-register"
+                disabled={!regSettings.is_open}
+                onClick={(e) => {
+                  if (!regSettings.is_open) {
+                    e.stopPropagation();
+                    setShowClosedModal(true);
+                  }
+                }}
               >
-                Daftar Sekarang
+                {regSettings.loading ? "Memuatkan..." : regSettings.is_open ? "Daftar Sekarang" : "Pendaftaran Ditutup"}
               </motion.button>
             </motion.div>
 
@@ -329,6 +403,31 @@ export default function LandingPage() {
           <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest hidden sm:block">ADMIN PANEL</span>
         </div>
       </footer>
+
+      {/* Modal Makluman Pendaftaran Ditutup */}
+      {showClosedModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <motion.div 
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative text-center"
+          >
+            <div className="w-12 h-12 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-100/50 shadow-xs">
+              <Info className="w-6 h-6" />
+            </div>
+            <h3 className="text-lg font-black text-slate-800 mb-2 font-sans">Pendaftaran Ditutup</h3>
+            <p className="text-xs text-slate-500 leading-relaxed mb-6 font-medium">
+              Pendaftaran telah ditutup oleh pihak penganjur. Sebarang makluman lanjut akan dimaklumkan melalui saluran rasmi.
+            </p>
+            <button
+              onClick={() => setShowClosedModal(false)}
+              className="w-full py-3 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all duration-200 cursor-pointer"
+            >
+              Faham
+            </button>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
