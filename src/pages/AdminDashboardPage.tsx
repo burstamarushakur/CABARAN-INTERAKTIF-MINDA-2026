@@ -5,6 +5,7 @@ import { adminService } from '../services/adminService';
 import { quizService } from '../services/quizService';
 import { registrationService } from '../services/registrationService';
 import { exportToCSV } from '../utils/csvUtils';
+import FeederImportPanel from '../components/FeederImportPanel';
 import { 
   LogOut, 
   Download, 
@@ -2101,6 +2102,13 @@ export default function AdminDashboardPage() {
           ) : (
             // ==================== TAB: REGISTRATIONS ====================
             <>
+              <FeederImportPanel
+                onImported={async () => {
+                  await fetchRegistrations(regPage, regPageSize, debouncedRegSearch, regStatus);
+                  await fetchData();
+                }}
+              />
+
               <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-6 gap-4 border-b border-slate-100 pb-4">
                 <div>
                   <h2 className="text-xl font-bold text-slate-800">Urusan Pendaftaran Sekolah & Calon</h2>
