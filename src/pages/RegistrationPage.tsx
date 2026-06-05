@@ -810,10 +810,10 @@ export default function RegistrationPage() {
                 </p>
               </div>
 
-              <div className="border-l-4 border-red-200 pl-4 py-1 bg-red-50/30 rounded-r-xl pr-3">
-                <h3 className="font-bold text-red-950 text-sm mb-1">8. Tempoh Menjawab Kuiz</h3>
-                <p className="text-red-900">
-                  Tempoh menjawab kuiz adalah selama 2 jam bagi setiap peserta. Walau bahaimanapun, sesi menjawab kuiz akan tamat sepenuhnya pada jam 6.00 petang. Peserta yang mula menjawab lewat perlu memastikan kuiz dihantar sebelum waktu tamat tersebut. Selepas jam 6.00 petang, sistem akan menamatkan sesi menjawab secara automatik.
+              <div className="border-l-4 border-slate-200 pl-4 py-1">
+                <h3 className="font-bold text-slate-900 text-sm mb-1">8. Tempoh Menjawab Kuiz</h3>
+                <p>
+                  Kuiz boleh mula dijawab pada Jam 0800 sehingga Jam 1800. Tempoh menjawab kuiz adalah selama 2 jam bagi setiap peserta. Walau bagaimanapun, sesi menjawab kuiz akan tamat sepenuhnya pada jam 6.00 petang. Peserta yang mula menjawab lewat perlu memastikan kuiz dihantar sebelum waktu tamat tersebut. Selepas jam 6.00 petang, sistem akan menamatkan sesi menjawab secara automatik.
                 </p>
               </div>
             </div>

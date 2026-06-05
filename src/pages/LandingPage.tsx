@@ -236,7 +236,10 @@ export default function LandingPage() {
                 <LogIn className="w-6 h-6" />
               </div>
               <h3 className="text-[19px] font-black text-slate-800 mb-2 transition-colors duration-300 group-hover:text-blue-950 font-sans tracking-tight">Portal Calon (Mula Jawab)</h3>
-              <p className="text-[12px] text-slate-450 font-medium leading-relaxed mb-6 flex-1 px-3">Gunakan kod akses murid unik yang dibekalkan oleh guru pengiring anda untuk mula menjawab kuiz interaktif terpilih.</p>
+              <p className="text-[12px] text-slate-450 font-medium leading-relaxed mb-4 flex-1 px-3">Gunakan kod akses murid unik yang dibekalkan oleh guru pengiring anda untuk mula menjawab kuiz interaktif terpilih.</p>
+              <p className="text-[10px] text-blue-600/80 font-bold mb-3 leading-normal max-w-sm px-2">
+                Sesi menjawab bermula Jam 0800 hingga Jam 1800.
+              </p>
               <motion.button 
                 whileHover={{ translateY: -2, boxShadow: '0 8px 25px rgba(30,58,138,0.3)' }}
                 whileTap={{ scale: 0.98 }}
