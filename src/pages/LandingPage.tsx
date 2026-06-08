@@ -83,7 +83,7 @@ export default function LandingPage() {
           initial={{ opacity: 0, y: -15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
-          className="z-10 text-center mb-10 mt-6 px-6 py-4 flex flex-col items-center justify-center bg-transparent relative"
+          className="z-10 text-center mb-6 mt-6 px-6 py-4 flex flex-col items-center justify-center bg-transparent relative"
         >
           <div className="flex flex-col items-center justify-center gap-4 sm:gap-5">
             <motion.img 
@@ -104,6 +104,30 @@ export default function LandingPage() {
               className="h-12 sm:h-16 md:h-20 w-auto object-contain transition-all duration-300 mix-blend-multiply drop-shadow-xs"
               referrerPolicy="no-referrer"
             />
+          </div>
+        </motion.div>
+
+        {/* System Stats (Centered Highlight Strip) */}
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.2 }}
+          className="z-10 flex flex-col sm:flex-row justify-center items-stretch sm:items-center gap-3 sm:gap-8 md:gap-12 text-slate-450 font-bold uppercase tracking-widest text-[10px] sm:text-[10px] mb-8 mx-auto w-full max-w-sm sm:max-w-4xl px-4"
+        >
+          <div className="bg-white/95 sm:bg-transparent p-3.5 sm:p-0 rounded-[1.25rem] flex-1 flex flex-col items-center justify-center text-center shadow-[0_8px_30px_rgb(0,0,0,0.02)] sm:shadow-none border border-slate-200/80 sm:border-none backdrop-blur-sm sm:backdrop-blur-none">
+            <span className="text-blue-950 text-base sm:text-lg md:text-xl mb-0.5 font-black leading-tight font-sans tracking-tight">27 JUN 2026</span>
+            TARIKH PROGRAM
+          </div>
+          <div className="hidden sm:block w-[1px] bg-slate-200 h-10 mt-1"></div>
+          <div className="bg-white/95 sm:bg-transparent p-3.5 sm:p-0 rounded-[1.25rem] flex-1 flex flex-col items-center justify-center text-center shadow-[0_8px_30px_rgb(0,0,0,0.02)] sm:shadow-none border border-slate-200/80 sm:border-none backdrop-blur-sm sm:backdrop-blur-none">
+            <span className="text-blue-950 text-base sm:text-lg md:text-xl mb-0.5 font-black leading-tight font-sans tracking-tight">08:00 – 18:00</span>
+            <span className="text-blue-600 font-extrabold text-[10px] sm:text-[11px] mb-0.5 uppercase tracking-widest">ATAS TALIAN</span>
+            MASA MENJAWAB
+          </div>
+          <div className="hidden sm:block w-[1px] bg-slate-200 h-10 mt-1"></div>
+          <div className="bg-white/95 sm:bg-transparent p-3.5 sm:p-0 rounded-[1.25rem] flex-1 flex flex-col items-center justify-center text-center shadow-[0_8px_30px_rgb(0,0,0,0.02)] sm:shadow-none border border-slate-200/80 sm:border-none backdrop-blur-sm sm:backdrop-blur-none">
+            <span className="text-blue-950 text-base sm:text-lg md:text-xl mb-0.5 font-black leading-tight font-sans tracking-tight">120 MINIT (2 JAM)</span>
+            TEMPOH KUIZ
           </div>
         </motion.div>
 
@@ -364,28 +388,7 @@ export default function LandingPage() {
           </div>
         </motion.div>
 
-        {/* System Stats (Centered & Modern Dashboard Stat Items) */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.7, delay: 0.6 }}
-          className="hidden sm:flex gap-8 md:gap-12 text-slate-450 font-bold uppercase tracking-widest text-[10px] pb-8 z-10 mx-auto"
-        >
-          <div className="flex flex-col items-center text-center">
-            <span className="text-blue-950 text-lg md:text-xl mb-1 font-black">27 JUN 2026</span>
-            TARIKH PROGRAM
-          </div>
-          <div className="w-[1px] bg-slate-200 h-10 mt-1"></div>
-          <div className="flex flex-col items-center text-center">
-            <span className="text-blue-950 text-lg md:text-xl mb-1 font-black">08:00 – 18:00</span>
-            MASA MENJAWAB
-          </div>
-          <div className="w-[1px] bg-slate-200 h-10 mt-1"></div>
-          <div className="flex flex-col items-center text-center">
-            <span className="text-blue-950 text-lg md:text-xl mb-1 font-black">120 MINIT</span>
-            TEMPOH KUIZ
-          </div>
-        </motion.div>
+
       </main>
 
       {/* Footer Bar */}
