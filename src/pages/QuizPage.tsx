@@ -5,12 +5,71 @@ import QuestionMedia from '../components/QuestionMedia';
 import { quizService } from '../services/quizService';
 import { Loader2, ArrowLeft, ArrowRight, CheckCircle, Clock, Home } from 'lucide-react';
 
+const QUIZ_CONTENT_VERSION = "2026-06-05-latest-media-v3";
+
+const clearOldQuizCacheForAccessCode = (accessCode: string) => {
+  if (!accessCode) return;
+  
+  const toRemoveLocal = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.includes(accessCode) && !key.includes(QUIZ_CONTENT_VERSION)) {
+      toRemoveLocal.push(key);
+    }
+  }
+  toRemoveLocal.forEach(k => localStorage.removeItem(k));
+
+  const toRemoveSession = [];
+  for (let i = 0; i < sessionStorage.length; i++) {
+    const key = sessionStorage.key(i);
+    if (key === 'cim2026_active_quiz_session') {
+      toRemoveSession.push(key);
+    } else if (key && key.includes(accessCode) && !key.includes(QUIZ_CONTENT_VERSION)) {
+      toRemoveSession.push(key);
+    }
+  }
+  toRemoveSession.forEach(k => sessionStorage.removeItem(k));
+};
+
+const clearAllQuizCacheForAccessCode = (accessCode: string) => {
+  if (!accessCode) return;
+  const toRemoveLocal = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key === 'cim2026_active_quiz_session' || (key && key.includes(accessCode))) {
+      toRemoveLocal.push(key);
+    }
+  }
+  toRemoveLocal.forEach(k => localStorage.removeItem(k));
+
+  const toRemoveSession = [];
+  for (let i = 0; i < sessionStorage.length; i++) {
+    const key = sessionStorage.key(i);
+    if (key === 'cim2026_active_quiz_session' || (key && key.includes(accessCode))) {
+      toRemoveSession.push(key);
+    }
+  }
+  toRemoveSession.forEach(k => sessionStorage.removeItem(k));
+};
+
 export default function QuizPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const routeState = (location.state || {}) as { accessCode?: string; studentData?: any };
+
+  // Helper getters to fallback to legacy cache gracefully for users answering right now
+  const getActiveSessionKey = (ac: string) => `quiz_session_${ac}_${QUIZ_CONTENT_VERSION}`;
+
   const persistedSession = (() => {
     try {
+      // Find matching session in new versioned keys
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i);
+        if (key && key.startsWith('quiz_session_') && key.includes(QUIZ_CONTENT_VERSION)) {
+          return JSON.parse(sessionStorage.getItem(key) || 'null');
+        }
+      }
+      // Fallback
       const saved = sessionStorage.getItem('cim2026_active_quiz_session');
       return saved ? JSON.parse(saved) : null;
     } catch {
@@ -22,6 +81,7 @@ export default function QuizPage() {
 
   const [questions, setQuestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingText, setLoadingText] = useState('Memuatkan kuiz...');
   const [error, setError] = useState('');
   const [submitError, setSubmitError] = useState('');
   
@@ -37,7 +97,7 @@ export default function QuizPage() {
     if (!accessCode || !studentData) return;
 
     try {
-      sessionStorage.setItem('cim2026_active_quiz_session', JSON.stringify({ accessCode, studentData }));
+      sessionStorage.setItem(getActiveSessionKey(accessCode), JSON.stringify({ accessCode, studentData }));
     } catch (err) {
       console.warn('Unable to persist active quiz session:', err);
     }
@@ -47,6 +107,16 @@ export default function QuizPage() {
     if (!accessCode) return;
     const initQuiz = async () => {
       try {
+        setLoadingText('Memuatkan soalan terkini...');
+        // FIRST: Validate attempt state to know if we arrived here fresh or resuming
+        const dbState = await quizService.validateAccessCode(accessCode);
+        const isFreshAttempt = !dbState.started_at && !dbState.completed_at && !dbState.is_completed;
+
+        if (isFreshAttempt) {
+          // If the attempt has truly never started, clean up old cache safely
+          clearOldQuizCacheForAccessCode(accessCode);
+        }
+
         const startData = await quizService.startQuiz(accessCode);
         const qData = await quizService.getQuestions(accessCode);
         
@@ -64,9 +134,17 @@ export default function QuizPage() {
           return arr;
         };
 
+        // Determine Cache Keys
+        const oldShuffleKey = `cim2026_shuffled_questions_${accessCode}`;
+        const newShuffleKey = `quiz_sequence_${accessCode}_${QUIZ_CONTENT_VERSION}`;
+        
+        // Use old key ONLY if we are resuming and it actually exists. Default to new key.
+        const sessionShuffleKey = (!isFreshAttempt && sessionStorage.getItem(oldShuffleKey)) 
+          ? oldShuffleKey 
+          : newShuffleKey;
+
         // Stable Randomization cache per participant access code
         let finalQuestions = [];
-        const sessionShuffleKey = `cim2026_shuffled_questions_${accessCode}`;
         const cachedShuffled = sessionStorage.getItem(sessionShuffleKey);
 
         if (cachedShuffled) {
@@ -103,7 +181,12 @@ export default function QuizPage() {
         setQuestions(finalQuestions);
 
         // Load saved answers from localStorage if available
-        const storageKey = `cim2026_answers_${accessCode}`;
+        const oldAnswersKey = `cim2026_answers_${accessCode}`;
+        const newAnswersKey = `quiz_answers_${accessCode}_${QUIZ_CONTENT_VERSION}`;
+        const storageKey = (!isFreshAttempt && localStorage.getItem(oldAnswersKey)) 
+          ? oldAnswersKey 
+          : newAnswersKey;
+          
         const savedDataStr = localStorage.getItem(storageKey);
         let loadedAnswers: Record<string, number> = {};
         if (savedDataStr) {
@@ -141,9 +224,7 @@ export default function QuizPage() {
               selected_option_index: oIdx as number
             }));
             const res = await quizService.submitQuiz(accessCode, formattedAnswers);
-            localStorage.removeItem(storageKey);
-            sessionStorage.removeItem('cim2026_active_quiz_session');
-            sessionStorage.removeItem(`cim2026_shuffled_questions_${accessCode}`);
+            clearAllQuizCacheForAccessCode(accessCode);
             navigate('/result', { state: { studentData, result: res } });
             return;
           } catch (submitErr) {
@@ -190,7 +271,11 @@ export default function QuizPage() {
       const newAnswers = { ...prev, [questionId]: optionIndex };
       
       // Save instantly to localStorage
-      const storageKey = `cim2026_answers_${accessCode}`;
+      // Fallback gracefully: if the legacy key exists (continuing session), use it. Else use new key
+      const oldKey = `cim2026_answers_${accessCode}`;
+      const newKey = `quiz_answers_${accessCode}_${QUIZ_CONTENT_VERSION}`;
+      const storageKey = localStorage.getItem(oldKey) ? oldKey : newKey;
+
       try {
         const saveData = {
           accessCode,
@@ -229,11 +314,8 @@ export default function QuizPage() {
 
       const res = await quizService.submitQuiz(accessCode, formattedAnswers);
       
-      // Success: delete saved answers from localStorage
-      const storageKey = `cim2026_answers_${accessCode}`;
-      localStorage.removeItem(storageKey);
-      sessionStorage.removeItem('cim2026_active_quiz_session');
-      sessionStorage.removeItem(`cim2026_shuffled_questions_${accessCode}`);
+      // Success: delete saved answers from localStorage and cached session
+      clearAllQuizCacheForAccessCode(accessCode);
 
       navigate('/result', { state: { studentData, result: res } });
     } catch (err: any) {
@@ -259,11 +341,8 @@ export default function QuizPage() {
 
         const res = await quizService.submitQuiz(accessCode, formattedAnswers);
         
-        // Success: delete saved answers from localStorage
-        const storageKey = `cim2026_answers_${accessCode}`;
-        localStorage.removeItem(storageKey);
-        sessionStorage.removeItem('cim2026_active_quiz_session');
-        sessionStorage.removeItem(`cim2026_shuffled_questions_${accessCode}`);
+        // Success: delete saved answers from localStorage and session
+        clearAllQuizCacheForAccessCode(accessCode);
 
         navigate('/result', { state: { studentData, result: res } });
       } catch (err: any) {
@@ -291,8 +370,9 @@ export default function QuizPage() {
   if (!accessCode) return <Navigate to="/login" replace />;
 
   if (loading) return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-4">
       <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
+      <span className="text-slate-600 font-semibold">{loadingText}</span>
     </div>
   );
 
