@@ -169,13 +169,14 @@ export const PPD_BY_STATE: Record<string, string[]> = {
   ],
 
   "TERENGGANU": [
-    "PPD KUALA TERENGGANU",
     "PPD BESUT",
     "PPD DUNGUN",
-    "PPD MARANG",
+    "PPD HULU TERENGGANU",
     "PPD KEMAMAN",
-    "PPD SETIU",
-    "PPD HULU TERENGGANU"
+    "PPD KUALA NERUS",
+    "PPD KUALA TERENGGANU",
+    "PPD MARANG",
+    "PPD SETIU"
   ],
 
   "WILAYAH PERSEKUTUAN KUALA LUMPUR": [
