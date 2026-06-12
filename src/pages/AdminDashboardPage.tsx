@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabaseClient';
 import { adminService } from '../services/adminService';
 import { quizService } from '../services/quizService';
 import { registrationService } from '../services/registrationService';
+import { whatsappQueueService } from '../services/whatsappQueueService';
 import { exportToCSV } from '../utils/csvUtils';
 import FeederImportPanel from '../components/FeederImportPanel';
 import { 
@@ -261,19 +262,54 @@ export default function AdminDashboardPage() {
     setActionLoading(true);
     setActionError('');
     try {
+      // Simpan salinan data sebelum approve sebagai fallback untuk WhatsApp Queue.
+      // Ini tidak mengubah data pendaftaran asal.
+      const queueFallbackRegistration = regDetail?.registration || null;
+
       await registrationService.adminApproveRegistration(selectedRegId, allowEarlyAccess);
       setShowApproveConfirmModal(false);
+
+      let updatedDetail: any = null;
+      let queueStatus: 'added' | 'duplicate' | 'skipped' | 'failed' = 'skipped';
       
       // Refresh details and registrations list
       if (isDetailModalOpen) {
         try {
-          const updated = await registrationService.adminGetRegistrationDetail(selectedRegId);
-          setRegDetail(updated);
+          updatedDetail = await registrationService.adminGetRegistrationDetail(selectedRegId);
+          setRegDetail(updatedDetail);
         } catch (e) {
           console.error('Failed to re-fetch details:', e);
         }
       } else {
         setSelectedRegId(null);
+      }
+
+      // WhatsApp Queue ialah proses tambahan sahaja.
+      // Kalau Google Sheet/GAS gagal, approval dan kod akses tetap kekal berjaya.
+      try {
+        const queueRegistration = updatedDetail?.registration || queueFallbackRegistration;
+        if (queueRegistration?.teacher_name && queueRegistration?.teacher_phone && queueRegistration?.registration_ref) {
+          const queueResult: any = await whatsappQueueService.addApprovedRegistration({
+            namaPendaftar: queueRegistration.teacher_name,
+            noTelefon: queueRegistration.teacher_phone,
+            noRujukan: queueRegistration.registration_ref,
+            sumber: 'CIM_ADMIN_APPROVAL',
+          });
+
+          if (queueResult?.duplicate) {
+            queueStatus = 'duplicate';
+          } else if (queueResult?.skipped) {
+            queueStatus = 'skipped';
+          } else if (queueResult?.success) {
+            queueStatus = 'added';
+          }
+        } else {
+          queueStatus = 'skipped';
+          console.warn('WhatsApp Queue skipped: data pendaftaran tidak lengkap.', queueRegistration);
+        }
+      } catch (queueError) {
+        queueStatus = 'failed';
+        console.warn('Pendaftaran berjaya, tetapi WhatsApp Queue gagal:', queueError);
       }
       
       fetchRegistrations(regPage, regPageSize, debouncedRegSearch, regStatus);
@@ -283,8 +319,17 @@ export default function AdminDashboardPage() {
       setStats(statsData);
 
       // Toast feedback
-      setSuccessToast("Pendaftaran diluluskan dan kod akses telah dijana.");
-      setTimeout(() => setSuccessToast(''), 5000);
+      const queueMessage =
+        queueStatus === 'added'
+          ? ' Data turut dimasukkan ke WhatsApp Queue.'
+          : queueStatus === 'duplicate'
+            ? ' Data sudah wujud dalam WhatsApp Queue.'
+            : queueStatus === 'failed'
+              ? ' Namun, data gagal masuk WhatsApp Queue. Sila isi manual jika perlu.'
+              : '';
+
+      setSuccessToast(`Pendaftaran diluluskan dan kod akses telah dijana.${queueMessage}`);
+      setTimeout(() => setSuccessToast(''), 6000);
     } catch (err: any) {
       console.error('Approval failed:', err);
       setActionError(err.message || 'Gagal meluluskan pendaftaran.');
