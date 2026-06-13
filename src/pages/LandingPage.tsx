@@ -173,7 +173,7 @@ export default function LandingPage() {
               {/* Badge "Pendaftaran Ditutup" */}
               {!regSettings.is_open && !regSettings.loading && (
                 <div className="absolute top-4 right-4 bg-red-100 text-red-750 text-[9px] font-extrabold uppercase px-3 py-1 rounded-full border border-red-200 shadow-xs tracking-wider">
-                  Pendaftaran Ditutup
+                  Ditutup Sementara
                 </div>
               )}
 
@@ -198,7 +198,7 @@ export default function LandingPage() {
                 </p>
               ) : (
                 <p className="text-[10px] text-red-600/70 font-semibold mb-3 leading-normal max-w-sm px-2">
-                  Pendaftaran telah ditutup oleh pihak penganjur.
+                  Pendaftaran ditutup sementara. Sila rujuk maklumat lanjut.
                 </p>
               )}
 
@@ -219,7 +219,7 @@ export default function LandingPage() {
                   }
                 }}
               >
-                {regSettings.loading ? "Memuatkan..." : regSettings.is_open ? "Daftar Sekarang" : "Pendaftaran Ditutup"}
+                {regSettings.loading ? "Memuatkan..." : regSettings.is_open ? "Daftar Sekarang" : "Ditutup Sementara"}
               </motion.button>
             </motion.div>
 
@@ -421,9 +421,9 @@ export default function LandingPage() {
             <div className="w-12 h-12 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-100/50 shadow-xs">
               <Info className="w-6 h-6" />
             </div>
-            <h3 className="text-lg font-black text-slate-800 mb-2 font-sans">Pendaftaran Ditutup</h3>
+            <h3 className="text-lg font-black text-slate-800 mb-2 font-sans">Pendaftaran Ditutup Sementara</h3>
             <p className="text-xs text-slate-500 leading-relaxed mb-6 font-medium">
-              Pendaftaran telah ditutup oleh pihak penganjur. Sebarang makluman lanjut akan dimaklumkan melalui saluran rasmi.
+              Pendaftaran ditutup sementara waktu bagi urusan kelulusan kod akses murid dan akan dibuka semula pada Isnin, 15 Jun 2026 jam 8.00 pagi.
             </p>
             <button
               onClick={() => setShowClosedModal(false)}

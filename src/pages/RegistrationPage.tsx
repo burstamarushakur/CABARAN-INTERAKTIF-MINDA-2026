@@ -630,10 +630,10 @@ export default function RegistrationPage() {
               <Info className="w-8 h-8" />
             </div>
             
-            <h2 className="text-2xl font-black text-slate-800 mb-3 font-sans">Pendaftaran Ditutup</h2>
+            <h2 className="text-2xl font-black text-slate-800 mb-3 font-sans">Pendaftaran Ditutup Sementara</h2>
             
             <p className="text-xs text-slate-500 leading-relaxed mb-8 font-semibold">
-              Pendaftaran telah ditutup oleh pihak penganjur. Pendaftaran akan ditutup pada 19 Jun 2026 jam 1800 atau lebih awal sekiranya jumlah penyertaan telah mencapai sasaran yang ditetapkan.
+              Pendaftaran ditutup sementara waktu bagi urusan kelulusan kod akses murid dan akan dibuka semula pada Isnin, 15 Jun 2026 jam 8.00 pagi.
             </p>
 
             <button
