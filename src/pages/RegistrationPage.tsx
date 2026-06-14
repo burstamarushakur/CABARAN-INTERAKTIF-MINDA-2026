@@ -107,6 +107,10 @@ export default function RegistrationPage() {
   // Success State - Step 5
   const [successData, setSuccessData] = useState<any>(null);
   const [copied, setCopied] = useState(false);
+  const [showSlipModal, setShowSlipModal] = useState(false);
+  const [showSlipCloseCheck, setShowSlipCloseCheck] = useState(false);
+  const [showSaveReferencePrompt, setShowSaveReferencePrompt] = useState(false);
+  const [showReferencePopup, setShowReferencePopup] = useState(false);
 
   // Step 1 read consent
   const [consented, setConsented] = useState(false);
@@ -365,6 +369,10 @@ export default function RegistrationPage() {
       }
 
       setSuccessData(registrationMetadata);
+      setShowSlipModal(true);
+      setShowSlipCloseCheck(false);
+      setShowSaveReferencePrompt(false);
+      setShowReferencePopup(false);
       setStep(5);
     } catch (err: any) {
       console.error('Submission failed:', err);
@@ -378,11 +386,33 @@ export default function RegistrationPage() {
   };
 
   // Copy ref helper
-  const handleCopyRef = () => {
+  const handleCopyRef = async () => {
     if (!successData || !successData.registration_ref) return;
-    navigator.clipboard.writeText(successData.registration_ref);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+
+    const refText = String(successData.registration_ref);
+
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(refText);
+      } else {
+        const textArea = document.createElement('textarea');
+        textArea.value = refText;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-9999px';
+        textArea.style.top = '0';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
+
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.warn('Unable to copy registration reference:', err);
+      window.prompt('Salin No. Rujukan Pendaftaran ini:', refText);
+    }
   };
 
   // Download PDF
@@ -581,6 +611,46 @@ export default function RegistrationPage() {
     doc.text(textLines, 30, y);
 
     doc.save(`Slip_Pendaftaran_${schoolCode}_CIM2026.pdf`);
+  };
+
+  useEffect(() => {
+    if (step !== 5 || !successData?.registration_ref) return;
+
+    const autoDownloadKey = `cim_slip_auto_downloaded_${successData.registration_ref}`;
+    if (sessionStorage.getItem(autoDownloadKey)) return;
+
+    sessionStorage.setItem(autoDownloadKey, '1');
+    setShowSlipModal(true);
+
+    const timer = window.setTimeout(() => {
+      handleDownloadPDF().catch((err) => {
+        console.warn('Auto download slip failed. User can still use manual download button:', err);
+      });
+    }, 700);
+
+    return () => window.clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, successData?.registration_ref]);
+
+  const handleCloseSlipModal = () => {
+    setShowSlipModal(false);
+    setShowSlipCloseCheck(true);
+  };
+
+  const handleSavedConfirmation = () => {
+    setShowSlipCloseCheck(false);
+    setShowSaveReferencePrompt(false);
+    setShowReferencePopup(false);
+  };
+
+  const handleNotSavedYet = () => {
+    setShowSlipCloseCheck(false);
+    setShowSaveReferencePrompt(true);
+  };
+
+  const handleOpenReferencePopup = () => {
+    setShowSaveReferencePrompt(false);
+    setShowReferencePopup(true);
   };
 
   const totalPayment = students.length * 10;
@@ -1366,6 +1436,190 @@ export default function RegistrationPage() {
               </motion.button>
             </div>
           </motion.div>
+        )}
+
+
+        {/* ==================== STEP 5: SAFETY POPUPS ==================== */}
+        {step === 5 && successData && showSlipModal && (
+          <div className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-sm px-3 py-4 sm:p-6 flex items-center justify-center">
+            <motion.div
+              initial={{ opacity: 0, y: 18, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              className="w-full max-w-2xl max-h-[92vh] overflow-y-auto bg-white rounded-3xl shadow-2xl border border-slate-200 p-5 sm:p-7 text-left"
+            >
+              <div className="flex items-start justify-between gap-4 mb-5">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-700 mb-1">Slip Pendaftaran</p>
+                  <h3 className="text-xl sm:text-2xl font-black text-slate-900 leading-tight">Pendaftaran Berjaya Dihantar</h3>
+                  <p className="text-xs text-slate-500 font-semibold mt-2 leading-relaxed">
+                    Sila simpan No. Rujukan dan muat turun slip pendaftaran ini sebelum menutup paparan.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCloseSlipModal}
+                  className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-xl shrink-0 cursor-pointer"
+                  aria-label="Tutup slip pendaftaran"
+                >
+                  ×
+                </button>
+              </div>
+
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 sm:p-5 mb-4">
+                <span className="text-[10px] font-black text-emerald-800 uppercase tracking-widest block mb-2">No. Rujukan Pendaftaran</span>
+                <div className="text-2xl sm:text-3xl font-black text-emerald-900 font-mono tracking-wide break-all select-all">
+                  {successData.registration_ref || 'CIM-2026-PENDING'}
+                </div>
+                <div className="mt-4 flex flex-col sm:flex-row gap-2">
+                  <button
+                    type="button"
+                    onClick={handleCopyRef}
+                    className="flex-1 px-4 py-3 bg-white hover:bg-emerald-100 border border-emerald-200 rounded-xl text-xs font-black text-emerald-900 uppercase tracking-wide flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Copy className="w-4 h-4" /> {copied ? 'No. Rujukan Telah Disalin' : 'Salin No. Rujukan'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDownloadPDF}
+                    className="flex-1 px-4 py-3 bg-emerald-700 hover:bg-emerald-800 rounded-xl text-xs font-black text-white uppercase tracking-wide flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                  >
+                    <Printer className="w-4 h-4" /> Muat Turun Slip
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Nama Sekolah</p>
+                  <p className="text-sm font-black text-slate-800 leading-snug">{schoolName || '-'}</p>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Guru Pengiring</p>
+                  <p className="text-sm font-black text-slate-800 leading-snug">{teacherName || '-'}</p>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">No. Telefon</p>
+                  <p className="text-sm font-black text-slate-800 font-mono">{teacherPhone || '-'}</p>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Jumlah Murid</p>
+                  <p className="text-sm font-black text-slate-800">{students.length} orang</p>
+                </div>
+              </div>
+
+              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-5">
+                <p className="text-xs font-bold text-amber-900 leading-relaxed">
+                  Peringatan: No. Rujukan ini diperlukan untuk semakan status pendaftaran dan mendapatkan kod akses murid selepas pendaftaran diluluskan oleh pihak penganjur.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleCloseSlipModal}
+                className="w-full py-3.5 bg-slate-900 hover:bg-black text-white rounded-xl text-xs font-black uppercase tracking-widest cursor-pointer shadow-md"
+              >
+                Tutup
+              </button>
+            </motion.div>
+          </div>
+        )}
+
+        {step === 5 && successData && showSlipCloseCheck && (
+          <div className="fixed inset-0 z-[110] bg-slate-950/70 backdrop-blur-sm px-3 py-4 sm:p-6 flex items-center justify-center">
+            <motion.div
+              initial={{ opacity: 0, y: 18, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              className="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 p-6 text-center"
+            >
+              <div className="w-14 h-14 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-amber-200">
+                <AlertCircle className="w-8 h-8 text-amber-600" />
+              </div>
+              <h3 className="text-lg font-black text-slate-900 mb-3">Sahkan Sebelum Tutup</h3>
+              <p className="text-sm text-slate-600 font-bold leading-relaxed mb-6">
+                Sudahkah anda menyimpan No. Rujukan? Sudahkah anda memuat turun slip pendaftaran?
+              </p>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <button
+                  type="button"
+                  onClick={handleSavedConfirmation}
+                  className="flex-1 py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-black uppercase tracking-wider cursor-pointer"
+                >
+                  Ya, Sudah
+                </button>
+                <button
+                  type="button"
+                  onClick={handleNotSavedYet}
+                  className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 rounded-xl text-xs font-black uppercase tracking-wider cursor-pointer"
+                >
+                  Belum
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {step === 5 && successData && showSaveReferencePrompt && (
+          <div className="fixed inset-0 z-[110] bg-slate-950/70 backdrop-blur-sm px-3 py-4 sm:p-6 flex items-center justify-center">
+            <motion.div
+              initial={{ opacity: 0, y: 18, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              className="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 p-6 text-center"
+            >
+              <h3 className="text-lg font-black text-slate-900 mb-3">Simpan No. Rujukan Sekarang</h3>
+              <p className="text-sm text-slate-600 font-bold leading-relaxed mb-6">
+                Sila tekan butang di bawah untuk memaparkan No. Rujukan dengan jelas sebelum menutup halaman ini.
+              </p>
+              <button
+                type="button"
+                onClick={handleOpenReferencePopup}
+                className="w-full py-3.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-black uppercase tracking-widest cursor-pointer shadow-md mb-3"
+              >
+                Simpan No. Rujukan Sekarang
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowSaveReferencePrompt(false)}
+                className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-xl text-xs font-black uppercase tracking-wider cursor-pointer"
+              >
+                Tutup
+              </button>
+            </motion.div>
+          </div>
+        )}
+
+        {step === 5 && successData && showReferencePopup && (
+          <div className="fixed inset-0 z-[120] bg-slate-950/75 backdrop-blur-sm px-3 py-4 sm:p-6 flex items-center justify-center">
+            <motion.div
+              initial={{ opacity: 0, y: 18, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              className="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 p-6 text-center relative"
+            >
+              <button
+                type="button"
+                onClick={() => setShowReferencePopup(false)}
+                className="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-xl cursor-pointer"
+                aria-label="Tutup paparan no rujukan"
+              >
+                ×
+              </button>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-700 mb-2">Salin No. Rujukan Ini</p>
+              <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 mb-5 mt-4">
+                <div className="text-2xl sm:text-3xl font-black text-emerald-900 font-mono tracking-wide break-all select-all">
+                  {successData.registration_ref || 'CIM-2026-PENDING'}
+                </div>
+              </div>
+              <p className="text-xs text-slate-600 font-bold leading-relaxed mb-5">
+                No. Rujukan ini diperlukan untuk semakan status pendaftaran dan mendapatkan kod akses murid nanti.
+              </p>
+              <button
+                type="button"
+                onClick={handleCopyRef}
+                className="w-full py-3.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-black uppercase tracking-widest cursor-pointer shadow-md"
+              >
+                {copied ? 'No. Rujukan Telah Disalin' : 'Salin No. Rujukan'}
+              </button>
+            </motion.div>
+          </div>
         )}
 
       </main>
