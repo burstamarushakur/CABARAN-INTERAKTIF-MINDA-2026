@@ -197,9 +197,14 @@ export default function LandingPage() {
                   Pendaftaran ditutup pada 19 Jun 2026 jam 1800 atau lebih awal sekiranya sasaran peserta telah dicapai.
                 </p>
               ) : (
-                <p className="text-[10px] text-red-600/70 font-semibold mb-3 leading-normal max-w-sm px-2">
-                  Pendaftaran ditutup sementara. Sila rujuk maklumat lanjut.
-                </p>
+                <div className="mb-3 max-w-sm px-2">
+                  <p className="text-[10px] text-red-600/80 font-extrabold leading-normal">
+                    Pendaftaran ditutup sementara waktu.
+                  </p>
+                  <p className="text-[10px] text-red-700 font-black leading-normal mt-1">
+                    Pendaftaran akan dibuka semula selepas admin selesai membuat semakan pendaftaran yang telah diterima sebelum ini.
+                  </p>
+                </div>
               )}
 
               <motion.button 
@@ -219,7 +224,7 @@ export default function LandingPage() {
                   }
                 }}
               >
-                {regSettings.loading ? "Memuatkan..." : regSettings.is_open ? "Daftar Sekarang" : "Ditutup Sementara"}
+                {regSettings.loading ? "Memuatkan..." : regSettings.is_open ? "Daftar Sekarang" : "Pendaftaran Ditutup Sementara Waktu"}
               </motion.button>
             </motion.div>
 
@@ -423,7 +428,7 @@ export default function LandingPage() {
             </div>
             <h3 className="text-lg font-black text-slate-800 mb-2 font-sans">Pendaftaran Ditutup Sementara</h3>
             <p className="text-xs text-slate-500 leading-relaxed mb-6 font-medium">
-              Pendaftaran ditutup sementara waktu bagi urusan kelulusan kod akses murid dan akan dibuka semula pada Isnin, 15 Jun 2026 jam 8.00 pagi.
+              Pendaftaran ditutup sementara waktu. <strong className="font-black text-slate-700">Pendaftaran akan dibuka semula selepas admin selesai membuat semakan pendaftaran yang telah diterima sebelum ini.</strong>
             </p>
             <button
               onClick={() => setShowClosedModal(false)}

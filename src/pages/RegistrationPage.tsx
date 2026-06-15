@@ -703,7 +703,7 @@ export default function RegistrationPage() {
             <h2 className="text-2xl font-black text-slate-800 mb-3 font-sans">Pendaftaran Ditutup Sementara</h2>
             
             <p className="text-xs text-slate-500 leading-relaxed mb-8 font-semibold">
-              Pendaftaran ditutup sementara waktu bagi urusan kelulusan kod akses murid dan akan dibuka semula pada Isnin, 15 Jun 2026 jam 8.00 pagi.
+              Pendaftaran ditutup sementara waktu. <strong className="font-black text-slate-700">Pendaftaran akan dibuka semula selepas admin selesai membuat semakan pendaftaran yang telah diterima sebelum ini.</strong>
             </p>
 
             <button
