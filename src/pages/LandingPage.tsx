@@ -156,12 +156,8 @@ export default function LandingPage() {
               whileHover={regSettings.is_open ? { y: -8, scale: 1.015, borderColor: '#10b981', boxShadow: '0 25px 45px -15px rgba(16, 185, 129, 0.14)' } : {}}
               whileTap={regSettings.is_open ? { scale: 0.995 } : {}}
               onClick={() => {
-                if (regSettings.loading) return;
-                if (!regSettings.is_open) {
-                  setShowClosedModal(true);
-                } else {
-                  navigate('/registration');
-                }
+                if (regSettings.loading || !regSettings.is_open) return;
+                navigate('/registration');
               }}
               className={`bg-white/95 p-7 sm:p-8 rounded-[2rem] border shadow-[0_15px_35px_-8px_rgba(0,0,0,0.02)] group cursor-pointer flex flex-col items-center text-center transition-all duration-300 bg-gradient-to-b from-white to-slate-50/10 relative ${
                 regSettings.is_open 
@@ -197,12 +193,18 @@ export default function LandingPage() {
                   Pendaftaran ditutup pada 19 Jun 2026 jam 1800 atau lebih awal sekiranya sasaran peserta telah dicapai.
                 </p>
               ) : (
-                <div className="mb-3 max-w-sm px-2">
-                  <p className="text-[10px] text-red-600/80 font-extrabold leading-normal">
-                    Pendaftaran ditutup sementara waktu.
+                <div className="mb-4 max-w-sm px-2 bg-red-50 border border-red-100 rounded-2xl py-3">
+                  <p className="text-[11px] text-red-700 font-black leading-normal uppercase tracking-wide">
+                    Pendaftaran ditutup sementara.
                   </p>
-                  <p className="text-[10px] text-red-700 font-black leading-normal mt-1">
-                    Pendaftaran akan dibuka semula selepas admin selesai membuat semakan pendaftaran yang telah diterima sebelum ini.
+                  <p className="text-[10px] text-slate-600 font-bold leading-normal mt-1">
+                    Sila hubungi admin melalui WhatsApp pada nombor tertera.
+                  </p>
+                  <p className="text-[13px] text-red-700 font-black leading-tight mt-2">
+                    016-202 2921
+                  </p>
+                  <p className="text-[10px] text-slate-500 font-extrabold leading-normal mt-0.5 uppercase tracking-widest">
+                    Cikgu Asraf
                   </p>
                 </div>
               )}
@@ -210,21 +212,30 @@ export default function LandingPage() {
               <motion.button 
                 whileHover={regSettings.is_open ? { translateY: -2, boxShadow: '0 8px 25px rgba(16,185,129,0.3)' } : {}}
                 whileTap={regSettings.is_open ? { scale: 0.98 } : {}}
-                className={`w-full py-3.5 text-white rounded-full font-extrabold text-[11px] uppercase tracking-wider transition-all duration-300 border ${
+                className={`w-full py-3.5 text-white rounded-2xl font-extrabold text-[11px] uppercase tracking-wider transition-all duration-300 border ${
                   regSettings.is_open
-                    ? 'bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 hover:opacity-95 shadow-md shadow-emerald-600/10 hover:shadow-emerald-500/25 border-emerald-500/10 cursor-pointer'
-                    : 'bg-slate-300 border-slate-200 text-slate-100 cursor-default shadow-none pointer-events-none'
+                    ? 'bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 hover:opacity-95 shadow-md shadow-emerald-600/10 hover:shadow-emerald-500/25 border-emerald-500/10 cursor-pointer rounded-full'
+                    : 'bg-red-600 border-red-500 text-white cursor-default shadow-sm shadow-red-600/10 pointer-events-none'
                 }`}
                 id="btn-register"
                 disabled={!regSettings.is_open}
                 onClick={(e) => {
                   if (!regSettings.is_open) {
                     e.stopPropagation();
-                    setShowClosedModal(true);
                   }
                 }}
               >
-                {regSettings.loading ? "Memuatkan..." : regSettings.is_open ? "Daftar Sekarang" : "Pendaftaran Ditutup Sementara Waktu"}
+                {regSettings.loading ? (
+                  "Memuatkan..."
+                ) : regSettings.is_open ? (
+                  "Daftar Sekarang"
+                ) : (
+                  <span className="flex flex-col items-center justify-center leading-tight normal-case tracking-normal">
+                    <span className="uppercase tracking-wider text-[11px]">Pendaftaran Ditutup Sementara</span>
+                    <span className="text-[10px] font-bold mt-1">WhatsApp Admin: 016-202 2921</span>
+                    <span className="text-[10px] font-bold">Cikgu Asraf</span>
+                  </span>
+                )}
               </motion.button>
             </motion.div>
 
@@ -428,7 +439,7 @@ export default function LandingPage() {
             </div>
             <h3 className="text-lg font-black text-slate-800 mb-2 font-sans">Pendaftaran Ditutup Sementara</h3>
             <p className="text-xs text-slate-500 leading-relaxed mb-6 font-medium">
-              Pendaftaran ditutup sementara waktu. <strong className="font-black text-slate-700">Pendaftaran akan dibuka semula selepas admin selesai membuat semakan pendaftaran yang telah diterima sebelum ini.</strong>
+              Pendaftaran ditutup sementara. Sila hubungi admin melalui WhatsApp pada nombor <strong className="font-black text-slate-700">016-202 2921 (Cikgu Asraf)</strong>.
             </p>
             <button
               onClick={() => setShowClosedModal(false)}
