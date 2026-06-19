@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
-import { Settings, LogIn, FileText, Info, UserPlus, Search } from 'lucide-react';
+import { Settings, LogIn, FileText, Info, UserPlus, Search, ArrowDown } from 'lucide-react';
 import { BRANDING } from '../constants/branding';
 import { quizService } from '../services/quizService';
 import { registrationService } from '../services/registrationService';
@@ -73,6 +73,8 @@ export default function LandingPage() {
       } 
     },
   };
+
+  const showClosedGuidance = !regSettings.loading && !regSettings.is_open;
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-50 via-white to-slate-50 font-sans text-slate-900 relative">
@@ -187,24 +189,25 @@ export default function LandingPage() {
                 Butiran sekolah, pendaftaran maklumat guru pengiring, serta pendaftaran kelompok calon penilaian minda.
               </p>
 
-              {/* Display small note if open or closed */}
+              {/* Display small note if open or official closure overlay */}
               {regSettings.is_open ? (
                 <p className="text-[10px] text-emerald-600/70 font-semibold mb-3 leading-normal max-w-sm px-2">
                   Pendaftaran ditutup pada 19 Jun 2026 jam 1800 atau lebih awal sekiranya sasaran peserta telah dicapai.
                 </p>
               ) : (
-                <div className="mb-4 max-w-sm px-2 bg-red-50 border border-red-100 rounded-2xl py-3">
-                  <p className="text-[11px] text-red-700 font-black leading-normal uppercase tracking-wide">
-                    Pendaftaran ditutup sementara.
+                <div className="mb-4 h-[144px] sm:h-[156px] w-full" aria-hidden="true"></div>
+              )}
+
+              {!regSettings.is_open && !regSettings.loading && (
+                <div className="absolute left-4 right-4 bottom-[5.5rem] sm:bottom-[5.9rem] rounded-[1.7rem] border border-white/60 bg-white/58 backdrop-blur-md shadow-[0_18px_40px_-18px_rgba(15,23,42,0.35)] px-4 sm:px-5 py-4 sm:py-5 text-center z-20 pointer-events-none">
+                  <p className="text-[18px] sm:text-[20px] font-black text-red-700 leading-tight tracking-tight uppercase">
+                    PENDAFTARAN DITUTUP SECARA RASMI.
                   </p>
-                  <p className="text-[10px] text-slate-600 font-bold leading-normal mt-1">
-                    Sila hubungi admin melalui WhatsApp pada nombor tertera.
+                  <p className="mt-3 text-[10px] sm:text-[11px] text-slate-700 leading-relaxed font-medium uppercase">
+                    JIKA ADA SEBARANG MASALAH PENDAFTARAN MELALUI SEKOLAH (BERKELOMPOK)/PENDAFTARAN LEWAT MELALUI SEKOLAH(BERKELOMPOK) BOLEH WHATSAPP ADMIN PADA NO TERTERA
                   </p>
-                  <p className="text-[13px] text-red-700 font-black leading-tight mt-2">
-                    016-202 2921
-                  </p>
-                  <p className="text-[10px] text-slate-500 font-extrabold leading-normal mt-0.5 uppercase tracking-widest">
-                    Cikgu Asraf
+                  <p className="mt-3 text-[13px] sm:text-[14px] font-black text-slate-900 tracking-wide uppercase">
+                    016-2022921-CIKGU ASRAF.
                   </p>
                 </div>
               )}
@@ -230,10 +233,9 @@ export default function LandingPage() {
                 ) : regSettings.is_open ? (
                   "Daftar Sekarang"
                 ) : (
-                  <span className="flex flex-col items-center justify-center leading-tight normal-case tracking-normal">
-                    <span className="uppercase tracking-wider text-[11px]">Pendaftaran Ditutup Sementara</span>
-                    <span className="text-[10px] font-bold mt-1">WhatsApp Admin: 016-202 2921</span>
-                    <span className="text-[10px] font-bold">Cikgu Asraf</span>
+                  <span className="flex flex-col items-center justify-center leading-tight normal-case tracking-normal px-2">
+                    <span className="uppercase tracking-wider text-[11px]">Pendaftaran Ditutup</span>
+                    <span className="text-[10px] font-bold mt-1 leading-snug">Jika ada pihak sekolah yang masih ingin mendaftar secara KELOMPOK, hubungi admin.</span>
                   </span>
                 )}
               </motion.button>
@@ -252,7 +254,20 @@ export default function LandingPage() {
                 <Search className="w-6 h-6" />
               </div>
               <h3 className="text-[19px] font-black text-slate-800 mb-2 transition-colors duration-300 group-hover:text-indigo-950 font-sans tracking-tight">Semak Status Pendaftaran</h3>
-              <p className="text-[12px] text-slate-450 font-medium leading-relaxed mb-6 flex-1 px-3">Semak status pembayaran pendaftaran sekolah, muat turun slip rasmi, dan rujukan senarai kod akses pelajar.</p>
+              <p className="text-[12px] text-slate-450 font-medium leading-relaxed mb-4 flex-1 px-3">Semak status pembayaran pendaftaran sekolah, muat turun slip rasmi, dan rujukan senarai kod akses pelajar.</p>
+              {showClosedGuidance && (
+                <motion.div
+                  initial={{ opacity: 0.75, y: -2 }}
+                  animate={{ opacity: [0.75, 1, 0.75], y: [0, 8, 0] }}
+                  transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
+                  className="mb-4 w-full rounded-2xl border border-indigo-100 bg-indigo-50/90 px-3 py-3 text-center shadow-sm"
+                >
+                  <p className="text-[10px] sm:text-[11px] font-bold text-indigo-900 leading-relaxed uppercase tracking-wide">
+                    SEMAK KOD AKSES MURID BAGI YANG SUDAH BERJAYA MENDAFTAR.
+                  </p>
+                  <ArrowDown className="w-5 h-5 text-indigo-600 mx-auto mt-2" />
+                </motion.div>
+              )}
               <motion.button 
                 whileHover={{ translateY: -2, boxShadow: '0 8px 25px rgba(99,102,241,0.3)' }}
                 whileTap={{ scale: 0.98 }}
@@ -280,6 +295,19 @@ export default function LandingPage() {
               <p className="text-[10px] text-blue-600/80 font-bold mb-3 leading-normal max-w-sm px-2">
                 Sesi menjawab bermula Jam 0800 hingga Jam 1800.
               </p>
+              {showClosedGuidance && (
+                <motion.div
+                  initial={{ opacity: 0.75, y: -2 }}
+                  animate={{ opacity: [0.75, 1, 0.75], y: [0, 8, 0] }}
+                  transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut', delay: 0.15 }}
+                  className="mb-4 w-full rounded-2xl border border-blue-100 bg-blue-50/90 px-3 py-3 text-center shadow-sm"
+                >
+                  <p className="text-[10px] sm:text-[11px] font-bold text-blue-950 leading-relaxed uppercase tracking-wide">
+                    MASUKKAN KOD AKSES DISINI UNTUK MENJAWAB PADA 27 JUN 2026
+                  </p>
+                  <ArrowDown className="w-5 h-5 text-blue-700 mx-auto mt-2" />
+                </motion.div>
+              )}
               <motion.button 
                 whileHover={{ translateY: -2, boxShadow: '0 8px 25px rgba(30,58,138,0.3)' }}
                 whileTap={{ scale: 0.98 }}
@@ -437,9 +465,9 @@ export default function LandingPage() {
             <div className="w-12 h-12 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-100/50 shadow-xs">
               <Info className="w-6 h-6" />
             </div>
-            <h3 className="text-lg font-black text-slate-800 mb-2 font-sans">Pendaftaran Ditutup Sementara</h3>
+            <h3 className="text-lg font-black text-slate-800 mb-2 font-sans">Pendaftaran Ditutup</h3>
             <p className="text-xs text-slate-500 leading-relaxed mb-6 font-medium">
-              Pendaftaran ditutup sementara. Sila hubungi admin melalui WhatsApp pada nombor <strong className="font-black text-slate-700">016-202 2921 (Cikgu Asraf)</strong>.
+              Jika ada pihak sekolah yang masih ingin mendaftar secara <strong className="font-black text-slate-700">KELOMPOK</strong>, hubungi admin.
             </p>
             <button
               onClick={() => setShowClosedModal(false)}
