@@ -706,9 +706,22 @@ export default function RegistrationPage() {
               JIKA ADA SEBARANG MASALAH PENDAFTARAN MELALUI SEKOLAH (BERKELOMPOK)/PENDAFTARAN LEWAT MELALUI SEKOLAH(BERKELOMPOK) BOLEH WHATSAPP ADMIN PADA NO TERTERA
             </p>
 
-            <p className="text-sm font-black text-slate-900 mb-8 uppercase tracking-wide">
+            <p className="text-sm font-black text-slate-900 mb-4 uppercase tracking-wide">
               016-2022921-CIKGU ASRAF.
             </p>
+
+            <p className="text-[11px] text-slate-600 leading-relaxed mb-4 font-medium">
+              Sila sertai untuk info berkaitan Cabaran Interaktif Minda 2026 <span className="font-black text-red-700">(bagi yang sudah berdaftar sahaja)</span>.
+            </p>
+
+            <a
+              href="https://chat.whatsapp.com/JlC0LfB61lqEOgiiuSmwWL"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full mb-3 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all duration-200 shadow-md cursor-pointer flex items-center justify-center"
+            >
+              Sertai Grup Komuniti WhatsApp CIM 2026
+            </a>
 
             <button
               onClick={() => navigate('/')}
