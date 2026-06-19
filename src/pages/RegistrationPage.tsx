@@ -700,10 +700,14 @@ export default function RegistrationPage() {
               <Info className="w-8 h-8" />
             </div>
             
-            <h2 className="text-2xl font-black text-slate-800 mb-3 font-sans">Pendaftaran Ditutup Sementara</h2>
+            <h2 className="text-2xl sm:text-[1.75rem] font-black text-red-700 mb-4 font-sans uppercase leading-tight">PENDAFTARAN DITUTUP SECARA RASMI.</h2>
             
-            <p className="text-xs text-slate-500 leading-relaxed mb-8 font-semibold">
-              Pendaftaran ditutup sementara waktu. <strong className="font-black text-slate-700">Pendaftaran akan dibuka semula selepas admin selesai membuat semakan pendaftaran yang telah diterima sebelum ini.</strong>
+            <p className="text-[11px] text-slate-600 leading-relaxed mb-4 font-medium uppercase">
+              JIKA ADA SEBARANG MASALAH PENDAFTARAN MELALUI SEKOLAH (BERKELOMPOK)/PENDAFTARAN LEWAT MELALUI SEKOLAH(BERKELOMPOK) BOLEH WHATSAPP ADMIN PADA NO TERTERA
+            </p>
+
+            <p className="text-sm font-black text-slate-900 mb-8 uppercase tracking-wide">
+              016-2022921-CIKGU ASRAF.
             </p>
 
             <button
