@@ -195,7 +195,7 @@ export default function LandingPage() {
                   Pendaftaran ditutup pada 19 Jun 2026 jam 1800 atau lebih awal sekiranya sasaran peserta telah dicapai.
                 </p>
               ) : (
-                <div className="mb-4 h-[144px] sm:h-[156px] w-full" aria-hidden="true"></div>
+                <div className="mb-4 h-[236px] sm:h-[252px] w-full" aria-hidden="true"></div>
               )}
 
               {!regSettings.is_open && !regSettings.loading && (
@@ -209,6 +209,18 @@ export default function LandingPage() {
                   <p className="mt-3 text-[13px] sm:text-[14px] font-black text-slate-900 tracking-wide uppercase">
                     016-2022921-CIKGU ASRAF.
                   </p>
+                  <p className="mt-3 text-[10px] sm:text-[11px] text-slate-700 leading-relaxed font-medium">
+                    Sila sertai untuk info berkaitan Cabaran Interaktif Minda 2026 <span className="font-black text-red-700">(bagi yang sudah berdaftar sahaja)</span>.
+                  </p>
+                  <a
+                    href="https://chat.whatsapp.com/JlC0LfB61lqEOgiiuSmwWL"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="mt-3 inline-flex w-full items-center justify-center rounded-full bg-emerald-600 px-4 py-2.5 text-[10px] sm:text-[11px] font-black text-white uppercase tracking-wider shadow-md shadow-emerald-700/20 transition hover:bg-emerald-700 pointer-events-auto"
+                  >
+                    Sertai Grup Komuniti WhatsApp CIM 2026
+                  </a>
                 </div>
               )}
 
@@ -235,7 +247,7 @@ export default function LandingPage() {
                 ) : (
                   <span className="flex flex-col items-center justify-center leading-tight normal-case tracking-normal px-2">
                     <span className="uppercase tracking-wider text-[11px]">Pendaftaran Ditutup</span>
-                    <span className="text-[10px] font-bold mt-1 leading-snug">Jika ada pihak sekolah yang masih ingin mendaftar secara KELOMPOK, hubungi admin.</span>
+                    <span className="text-[10px] font-bold mt-1 leading-snug">Info lanjut ada pada kotak makluman rasmi di atas.</span>
                   </span>
                 )}
               </motion.button>
