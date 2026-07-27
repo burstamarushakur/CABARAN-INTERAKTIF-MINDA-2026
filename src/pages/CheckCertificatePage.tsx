@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import { quizService } from '../services/quizService';
@@ -11,6 +11,18 @@ import { Search, Download, Loader2, Home, Award, Calendar, Timer, School, User, 
 export default function CheckCertificatePage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'individual' | 'school'>('individual');
+  const [showCertificateDataNotice, setShowCertificateDataNotice] = useState(true);
+
+  useEffect(() => {
+    if (!showCertificateDataNotice) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [showCertificateDataNotice]);
 
   // -------------------------------------------------------------
   // State for Semakan Individu
@@ -404,6 +416,54 @@ export default function CheckCertificatePage() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-900">
       <Header />
+
+      {showCertificateDataNotice && (
+        <div
+          className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/75 p-3 backdrop-blur-sm sm:p-6"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="certificate-data-notice-title"
+          aria-describedby="certificate-data-notice-description"
+        >
+          <div className="flex max-h-[94vh] w-full max-w-2xl flex-col overflow-hidden rounded-[1.5rem] border border-white/20 bg-white shadow-[0_30px_90px_-20px_rgba(15,23,42,0.7)] sm:rounded-[2rem]">
+            <div className="shrink-0 bg-gradient-to-br from-amber-500 via-orange-500 to-red-600 px-5 py-6 text-center text-white sm:px-10 sm:py-8">
+              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/40 bg-white/15 text-2xl font-black shadow-inner">
+                !
+              </div>
+              <p className="mb-1 text-[10px] font-black uppercase tracking-[0.24em] text-amber-50 sm:text-xs">
+                Sila Baca Sebelum Meneruskan
+              </p>
+              <h2
+                id="certificate-data-notice-title"
+                className="text-xl font-black uppercase leading-tight tracking-tight sm:text-2xl"
+              >
+                Makluman Penting Berkaitan Maklumat Sijil
+              </h2>
+            </div>
+
+            <div className="overflow-y-auto px-5 py-5 sm:px-9 sm:py-7">
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:p-6">
+                <p
+                  id="certificate-data-notice-description"
+                  className="text-justify text-[12px] font-bold uppercase leading-6 text-slate-700 sm:text-[13px] sm:leading-7"
+                >
+                  Maklumat peserta (nama dan No. Kad Pengenalan) yang tertera di dalam sijil akan dijana dari data pengisian semasa pendaftaran yang dibuat oleh pendaftar (Guru Pengiring/Ibu Bapa/Penjaga). Segala kesilapan maklumat, pihak penganjur tidak dapat membuat pembetulan kerana bagi menjaga keesahan data asal yang dimasukkan semasa proses pendaftaran. Makluman berkaitan perkara ini telah dipersetujui oleh pendaftar semasa menjalankan pendaftaran.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowCertificateDataNotice(false)}
+                autoFocus
+                className="mt-5 w-full cursor-pointer rounded-2xl bg-blue-700 px-5 py-4 text-center text-sm font-black uppercase tracking-wide text-white shadow-lg shadow-blue-900/20 transition hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-200 sm:text-base"
+              >
+                Saya Akur Dengan Makluman Di Atas
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <main className="flex-1 w-full max-w-3xl mx-auto p-4 sm:p-6 py-8 sm:py-12">
         <motion.button
           initial={{ opacity: 0, x: -10 }}
