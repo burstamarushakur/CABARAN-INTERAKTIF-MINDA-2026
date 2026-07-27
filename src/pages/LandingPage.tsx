@@ -152,120 +152,50 @@ export default function LandingPage() {
             animate="show"
             className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 w-full relative z-10 px-4"
           >
-            {/* Pendaftaran Sekolah/Peserta */}
+            {/* Pendaftaran Sekolah/Peserta - paparan asal dikekalkan tetapi akses dikunci */}
             <motion.div 
               variants={itemVariants}
-              whileHover={regSettings.is_open ? { y: -8, scale: 1.015, borderColor: '#10b981', boxShadow: '0 25px 45px -15px rgba(16, 185, 129, 0.14)' } : {}}
-              whileTap={regSettings.is_open ? { scale: 0.995 } : {}}
-              onClick={() => {
-                if (regSettings.loading || !regSettings.is_open) return;
-                navigate('/registration');
-              }}
-              className={`bg-white/95 p-7 sm:p-8 rounded-[2rem] border shadow-[0_15px_35px_-8px_rgba(0,0,0,0.02)] group cursor-pointer flex flex-col items-center text-center transition-all duration-300 bg-gradient-to-b from-white to-slate-50/10 relative ${
-                regSettings.is_open 
-                  ? 'border-slate-200/80 hover:border-emerald-400' 
-                  : 'border-slate-200/50 opacity-80 cursor-default'
-              }`}
+              className="bg-white/95 p-7 sm:p-8 rounded-[2rem] border border-slate-200/80 shadow-[0_15px_35px_-8px_rgba(0,0,0,0.02)] flex flex-col items-center text-center transition-all duration-300 bg-gradient-to-b from-white to-slate-50/10 relative overflow-hidden"
               id="register-card"
+              aria-disabled="true"
             >
-              {/* Badge "Pendaftaran Ditutup" */}
-              {!regSettings.is_open && !regSettings.loading && (
-                <div className="absolute top-4 right-4 bg-red-100 text-red-750 text-[9px] font-extrabold uppercase px-3 py-1 rounded-full border border-red-200 shadow-xs tracking-wider">
-                  Ditutup Sementara
-                </div>
-              )}
-
-              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-5 ring-4 border transition-all duration-300 shadow-[0_4px_12px_rgba(16,185,129,0.05)] ${
-                regSettings.is_open
-                  ? 'bg-gradient-to-br from-emerald-50 to-emerald-100/50 text-emerald-600 ring-emerald-50 border-emerald-100/85 group-hover:scale-110 group-hover:from-emerald-600 group-hover:to-emerald-500 group-hover:text-white'
-                  : 'bg-slate-100 text-slate-400 ring-slate-50 border-slate-200'
-              }`}>
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5 ring-4 border transition-all duration-300 shadow-[0_4px_12px_rgba(16,185,129,0.05)] bg-gradient-to-br from-emerald-50 to-emerald-100/50 text-emerald-600 ring-emerald-50 border-emerald-100/85">
                 <UserPlus className="w-6 h-6" />
               </div>
-              <h3 className="text-[19px] font-black text-slate-800 mb-2 transition-colors duration-300 font-sans tracking-tight group-hover:text-emerald-950">
+              <h3 className="text-[19px] font-black text-slate-800 mb-2 transition-colors duration-300 font-sans tracking-tight">
                 Pendaftaran Sekolah / Peserta
               </h3>
               <p className="text-[12px] text-slate-450 font-medium leading-relaxed mb-4 flex-1 px-3">
                 Butiran sekolah, pendaftaran maklumat guru pengiring, serta pendaftaran kelompok calon penilaian minda.
               </p>
-
-              {/* Display small note if open or official closure overlay */}
-              {regSettings.is_open ? (
-                <p className="text-[10px] text-emerald-600/70 font-semibold mb-3 leading-normal max-w-sm px-2">
-                  Pendaftaran ditutup pada 19 Jun 2026 jam 1800 atau lebih awal sekiranya sasaran peserta telah dicapai.
-                </p>
-              ) : (
-                <div className="mb-4 h-[236px] sm:h-[252px] w-full" aria-hidden="true"></div>
-              )}
-
-              {!regSettings.is_open && !regSettings.loading && (
-                <div className="absolute left-4 right-4 bottom-[5.5rem] sm:bottom-[5.9rem] rounded-[1.7rem] border border-white/60 bg-white/58 backdrop-blur-md shadow-[0_18px_40px_-18px_rgba(15,23,42,0.35)] px-4 sm:px-5 py-4 sm:py-5 text-center z-20 pointer-events-none">
-                  <p className="text-[18px] sm:text-[20px] font-black text-red-700 leading-tight tracking-tight uppercase">
-                    PENDAFTARAN DITUTUP SECARA RASMI.
-                  </p>
-                  <p className="mt-3 text-[10px] sm:text-[11px] text-slate-700 leading-relaxed font-medium uppercase">
-                    JIKA ADA SEBARANG MASALAH PENDAFTARAN MELALUI SEKOLAH (BERKELOMPOK)/PENDAFTARAN LEWAT MELALUI SEKOLAH(BERKELOMPOK) BOLEH WHATSAPP ADMIN PADA NO TERTERA
-                  </p>
-                  <p className="mt-3 text-[13px] sm:text-[14px] font-black text-slate-900 tracking-wide uppercase">
-                    016-2022921-CIKGU ASRAF.
-                  </p>
-                  <p className="mt-3 text-[10px] sm:text-[11px] text-slate-700 leading-relaxed font-medium">
-                    Sila sertai untuk info berkaitan Cabaran Interaktif Minda 2026 <span className="font-black text-red-700">(bagi yang sudah berdaftar sahaja)</span>.
-                  </p>
-                  <a
-                    href="https://chat.whatsapp.com/JlC0LfB61lqEOgiiuSmwWL"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="mt-3 inline-flex w-full items-center justify-center rounded-full bg-emerald-600 px-4 py-2.5 text-[10px] sm:text-[11px] font-black text-white uppercase tracking-wider shadow-md shadow-emerald-700/20 transition hover:bg-emerald-700 pointer-events-auto"
-                  >
-                    Sertai Grup Komuniti WhatsApp CIM 2026
-                  </a>
-                </div>
-              )}
-
+              <p className="text-[10px] text-emerald-600/70 font-semibold mb-3 leading-normal max-w-sm px-2">
+                Pendaftaran ditutup pada 19 Jun 2026 jam 1800 atau lebih awal sekiranya sasaran peserta telah dicapai.
+              </p>
               <motion.button 
-                whileHover={regSettings.is_open ? { translateY: -2, boxShadow: '0 8px 25px rgba(16,185,129,0.3)' } : {}}
-                whileTap={regSettings.is_open ? { scale: 0.98 } : {}}
-                className={`w-full py-3.5 text-white rounded-2xl font-extrabold text-[11px] uppercase tracking-wider transition-all duration-300 border ${
-                  regSettings.is_open
-                    ? 'bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 hover:opacity-95 shadow-md shadow-emerald-600/10 hover:shadow-emerald-500/25 border-emerald-500/10 cursor-pointer rounded-full'
-                    : 'bg-red-600 border-red-500 text-white cursor-default shadow-sm shadow-red-600/10 pointer-events-none'
-                }`}
+                className="w-full py-3.5 text-white rounded-full font-extrabold text-[11px] uppercase tracking-wider transition-all duration-300 border bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 shadow-md shadow-emerald-600/10 border-emerald-500/10 cursor-not-allowed"
                 id="btn-register"
-                disabled={!regSettings.is_open}
-                onClick={(e) => {
-                  if (!regSettings.is_open) {
-                    e.stopPropagation();
-                  }
-                }}
+                disabled
               >
-                {regSettings.loading ? (
-                  "Memuatkan..."
-                ) : regSettings.is_open ? (
-                  "Daftar Sekarang"
-                ) : (
-                  <span className="flex flex-col items-center justify-center leading-tight normal-case tracking-normal px-2">
-                    <span className="uppercase tracking-wider text-[11px]">Pendaftaran Ditutup</span>
-                    <span className="text-[10px] font-bold mt-1 leading-snug">Info lanjut ada pada kotak makluman rasmi di atas.</span>
-                  </span>
-                )}
+                Daftar Sekarang
               </motion.button>
+
+              <div
+                className="absolute inset-0 z-30 rounded-[2rem] bg-white/50 backdrop-blur-[2.5px] cursor-not-allowed"
+                aria-hidden="true"
+              />
             </motion.div>
 
-            {/* Semak Status Pendaftaran */}
+            {/* Semak Status Pendaftaran - kandungan asal dikekalkan tetapi akses dikunci */}
             <motion.div 
               variants={itemVariants}
-              whileHover={{ y: -8, scale: 1.015, borderColor: '#6366f1', boxShadow: '0 25px 45px -15px rgba(99, 102, 241, 0.14)' }}
-              whileTap={{ scale: 0.995 }}
-              onClick={() => navigate('/registration/status')}
-              className="bg-white/95 p-7 sm:p-8 rounded-[2rem] border border-slate-200/80 shadow-[0_15px_35px_-8px_rgba(0,0,0,0.02)] hover:border-indigo-400 group cursor-pointer flex flex-col items-center text-center transition-all duration-300 bg-gradient-to-b from-white to-slate-50/10"
+              className="bg-white/95 p-7 sm:p-8 rounded-[2rem] border border-slate-200/80 shadow-[0_15px_35px_-8px_rgba(0,0,0,0.02)] flex flex-col items-center text-center transition-all duration-300 bg-gradient-to-b from-white to-slate-50/10 relative overflow-hidden"
               id="status-card"
+              aria-disabled="true"
             >
-              <div className="w-16 h-16 bg-gradient-to-br from-indigo-50 to-indigo-100/50 rounded-2xl flex items-center justify-center mb-5 text-indigo-600 ring-4 ring-indigo-50 border border-indigo-100/85 group-hover:scale-110 group-hover:from-indigo-600 group-hover:to-indigo-500 group-hover:text-white transition-all duration-300 shadow-[0_4px_12px_rgba(99,102,241,0.05)]">
+              <div className="w-16 h-16 bg-gradient-to-br from-indigo-50 to-indigo-100/50 rounded-2xl flex items-center justify-center mb-5 text-indigo-600 ring-4 ring-indigo-50 border border-indigo-100/85 transition-all duration-300 shadow-[0_4px_12px_rgba(99,102,241,0.05)]">
                 <Search className="w-6 h-6" />
               </div>
-              <h3 className="text-[19px] font-black text-slate-800 mb-2 transition-colors duration-300 group-hover:text-indigo-950 font-sans tracking-tight">Semak Status Pendaftaran</h3>
+              <h3 className="text-[19px] font-black text-slate-800 mb-2 transition-colors duration-300 font-sans tracking-tight">Semak Status Pendaftaran</h3>
               <p className="text-[12px] text-slate-450 font-medium leading-relaxed mb-4 flex-1 px-3">Semak status pembayaran pendaftaran sekolah, muat turun slip rasmi, dan rujukan senarai kod akses pelajar.</p>
               {showClosedGuidance && (
                 <motion.div
@@ -281,28 +211,30 @@ export default function LandingPage() {
                 </motion.div>
               )}
               <motion.button 
-                whileHover={{ translateY: -2, boxShadow: '0 8px 25px rgba(99,102,241,0.3)' }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full py-3.5 bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-500 hover:opacity-95 text-white rounded-full font-extrabold text-[11px] uppercase tracking-wider transition-all duration-300 cursor-pointer shadow-md shadow-indigo-600/10 hover:shadow-indigo-500/25 border border-indigo-500/10" 
+                className="w-full py-3.5 bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-500 text-white rounded-full font-extrabold text-[11px] uppercase tracking-wider transition-all duration-300 cursor-not-allowed shadow-md shadow-indigo-600/10 border border-indigo-500/10" 
                 id="btn-status"
+                disabled
               >
                 Semak Pengesahan
               </motion.button>
+
+              <div
+                className="absolute inset-0 z-30 rounded-[2rem] bg-white/50 backdrop-blur-[2.5px] cursor-not-allowed"
+                aria-hidden="true"
+              />
             </motion.div>
 
-            {/* Portal Calon */}
+            {/* Portal Calon - kandungan asal dikekalkan tetapi akses dikunci */}
             <motion.div 
               variants={itemVariants}
-              whileHover={{ y: -8, scale: 1.015, borderColor: '#1e3a8a', boxShadow: '0 25px 45px -15px rgba(30, 58, 138, 0.14)' }}
-              whileTap={{ scale: 0.995 }}
-              onClick={() => navigate('/login')}
-              className="bg-white/95 p-7 sm:p-8 rounded-[2rem] border border-slate-200/80 shadow-[0_15px_35px_-8px_rgba(0,0,0,0.02)] hover:border-blue-700 group cursor-pointer flex flex-col items-center text-center transition-all duration-300 bg-gradient-to-b from-white to-slate-50/10"
+              className="bg-white/95 p-7 sm:p-8 rounded-[2rem] border border-slate-200/80 shadow-[0_15px_35px_-8px_rgba(0,0,0,0.02)] flex flex-col items-center text-center transition-all duration-300 bg-gradient-to-b from-white to-slate-50/10 relative overflow-hidden"
               id="portal-calon-card"
+              aria-disabled="true"
             >
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-2xl flex items-center justify-center mb-5 text-blue-600 ring-4 ring-blue-50 border border-blue-100/85 group-hover:scale-110 group-hover:from-blue-900 group-hover:to-blue-800 group-hover:text-white transition-all duration-300 shadow-[0_4px_12px_rgba(30,58,138,0.05)]">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-2xl flex items-center justify-center mb-5 text-blue-600 ring-4 ring-blue-50 border border-blue-100/85 transition-all duration-300 shadow-[0_4px_12px_rgba(30,58,138,0.05)]">
                 <LogIn className="w-6 h-6" />
               </div>
-              <h3 className="text-[19px] font-black text-slate-800 mb-2 transition-colors duration-300 group-hover:text-blue-950 font-sans tracking-tight">Portal Calon (Mula Jawab)</h3>
+              <h3 className="text-[19px] font-black text-slate-800 mb-2 transition-colors duration-300 font-sans tracking-tight">Portal Calon (Mula Jawab)</h3>
               <p className="text-[12px] text-slate-450 font-medium leading-relaxed mb-4 flex-1 px-3">Gunakan kod akses murid unik yang dibekalkan oleh guru pengiring anda untuk mula menjawab kuiz interaktif terpilih.</p>
               <p className="text-[10px] text-blue-600/80 font-bold mb-3 leading-normal max-w-sm px-2">
                 Sesi menjawab bermula Jam 0800 hingga Jam 1800.
@@ -321,13 +253,17 @@ export default function LandingPage() {
                 </motion.div>
               )}
               <motion.button 
-                whileHover={{ translateY: -2, boxShadow: '0 8px 25px rgba(30,58,138,0.3)' }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full py-3.5 bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-900 hover:opacity-95 text-white rounded-full font-extrabold text-[11px] uppercase tracking-wider transition-all duration-300 cursor-pointer shadow-md shadow-blue-950/15 hover:shadow-blue-900/25 border border-blue-900/10 font-sans" 
+                className="w-full py-3.5 bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-900 text-white rounded-full font-extrabold text-[11px] uppercase tracking-wider transition-all duration-300 cursor-not-allowed shadow-md shadow-blue-950/15 border border-blue-900/10 font-sans" 
                 id="btn-portal-calon"
+                disabled
               >
                 Mula Kuiz
               </motion.button>
+
+              <div
+                className="absolute inset-0 z-30 rounded-[2rem] bg-white/50 backdrop-blur-[2.5px] cursor-not-allowed"
+                aria-hidden="true"
+              />
             </motion.div>
 
             {/* Semak Sijil */}
