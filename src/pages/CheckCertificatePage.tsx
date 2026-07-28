@@ -2,11 +2,34 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import { quizService } from '../services/quizService';
-import { registrationService } from '../services/registrationService';
 import { generateCertificate, generateCertificateBlob } from '../utils/pdfUtils';
 import { motion } from 'motion/react';
 import { supabase } from '../lib/supabaseClient';
 import { Search, Download, Loader2, Home, Award, Calendar, Timer, School, User, MapPin, FileArchive } from 'lucide-react';
+
+const normalizeTeacherPhone = (value: string) => value.replace(/\D/g, '');
+
+const buildTeacherPhoneVariants = (rawPhone: string): string[] => {
+  const digits = normalizeTeacherPhone(rawPhone);
+  const variants = new Set<string>();
+
+  if (digits) variants.add(digits);
+
+  if (digits.startsWith('60') && digits.length > 2) {
+    variants.add(`0${digits.slice(2)}`);
+  }
+
+  if (digits.startsWith('0') && digits.length > 1) {
+    variants.add(`60${digits.slice(1)}`);
+  }
+
+  if (!digits.startsWith('0') && !digits.startsWith('60') && digits.length >= 8) {
+    variants.add(`0${digits}`);
+    variants.add(`60${digits}`);
+  }
+
+  return Array.from(variants).filter(Boolean);
+};
 
 export default function CheckCertificatePage() {
   const navigate = useNavigate();
@@ -220,40 +243,104 @@ export default function CheckCertificatePage() {
     setSchoolError('');
     setSchoolRegData(null);
     setSchoolSearched(false);
-    setSchoolLoading(true);
 
     const ref = schoolRefNo.trim().toUpperCase();
-    const phone = teacherPhone.trim();
+    const phone = normalizeTeacherPhone(teacherPhone);
 
-    if (!ref) {
-      setSchoolError('Sila masukkan No. Rujukan Pendaftaran.');
-      setSchoolLoading(false);
+    if (!ref && !phone) {
+      setSchoolError('Sila masukkan No. Rujukan Pendaftaran atau No. Telefon Guru Pengiring. Salah satu sahaja sudah mencukupi.');
       return;
     }
-    if (!phone || phone.length < 10) {
+
+    if (phone && phone.length < 10) {
       setSchoolError('Sila isi nombor telefon Guru Pengiring yang sah.');
-      setSchoolLoading(false);
       return;
     }
+
+    setSchoolLoading(true);
 
     try {
-      const cleanedPhone = phone.replace(/\D/g, '');
-      const data = await registrationService.checkRegistrationStatus(ref, cleanedPhone);
+      const selectColumns = `
+        id,
+        registration_ref,
+        state,
+        ppd,
+        school_name,
+        school_code,
+        teacher_name,
+        teacher_phone,
+        teacher_email,
+        registration_status,
+        created_at,
+        students (
+          id,
+          name,
+          ic_number,
+          access_code,
+          access_status
+        )
+      `;
 
-      let payload = data;
-      if (Array.isArray(payload)) payload = payload[0];
-      if (typeof payload === 'string') {
-        try {
-          payload = JSON.parse(payload);
-        } catch {
-          payload = null;
-        }
+      let rows: any[] = [];
+
+      if (ref) {
+        const { data, error } = await supabase
+          .from('registrations')
+          .select(selectColumns)
+          .eq('registration_ref', ref)
+          .limit(1);
+
+        if (error) throw error;
+        rows = data || [];
+      } else {
+        const phoneVariants = buildTeacherPhoneVariants(phone);
+        const { data, error } = await supabase
+          .from('registrations')
+          .select(selectColumns)
+          .in('teacher_phone', phoneVariants)
+          .order('created_at', { ascending: false })
+          .limit(50);
+
+        if (error) throw error;
+        rows = data || [];
       }
 
-      if (!payload || payload.found === false) {
-        setSchoolError('Maklumat tidak ditemui. Sila semak No. Rujukan Pendaftaran dan nombor telefon guru pengiring.');
+      if (rows.length === 0) {
+        setSchoolError('Maklumat tidak ditemui. Sila semak No. Rujukan Pendaftaran atau nombor telefon guru pengiring.');
         return;
       }
+
+      const schoolCodes = new Set(
+        rows
+          .map((row: any) => String(row?.school_code || '').trim().toUpperCase())
+          .filter(Boolean)
+      );
+
+      if (!ref && schoolCodes.size > 1) {
+        setSchoolError('Nombor telefon ini dipadankan dengan lebih daripada satu sekolah. Sila gunakan No. Rujukan Pendaftaran untuk memilih rekod yang tepat.');
+        return;
+      }
+
+      const primaryRow = rows[0];
+      const uniqueStudents = new Map<string, any>();
+
+      rows.forEach((row: any) => {
+        const students = Array.isArray(row?.students) ? row.students : [];
+        students.forEach((student: any, index: number) => {
+          const key = String(student?.id || student?.access_code || student?.ic_number || `${row.id}-${index}`);
+          uniqueStudents.set(key, {
+            ...student,
+            student_name: student?.student_name || student?.name || ''
+          });
+        });
+      });
+
+      const payload: any = {
+        ...primaryRow,
+        registration_ref: rows.length > 1 ? 'SEMAKAN-TELEFON' : primaryRow.registration_ref,
+        matched_registration_refs: rows.map((row: any) => row.registration_ref).filter(Boolean),
+        students: Array.from(uniqueStudents.values())
+      };
 
       // Check global certificate release status inside adminGetCertificateStatus safely
       let isReleased = false;
@@ -736,10 +823,20 @@ export default function CheckCertificatePage() {
                       placeholder="Contoh: CIM-2026-JBA5095-0001"
                       className="w-full p-4 border-2 border-slate-200 rounded-xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-lg transition font-medium text-slate-800 placeholder:text-slate-350"
                       value={schoolRefNo}
-                      onChange={(e) => setSchoolRefNo(e.target.value)}
-                      required
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setSchoolRefNo(value);
+                        if (value.trim()) setTeacherPhone('');
+                      }}
                     />
                   </div>
+
+                  <div className="flex items-center gap-3" aria-hidden="true">
+                    <span className="h-px flex-1 bg-slate-200" />
+                    <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Atau</span>
+                    <span className="h-px flex-1 bg-slate-200" />
+                  </div>
+
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-1.5">
                       No. Telefon Guru Pengiring
@@ -749,8 +846,12 @@ export default function CheckCertificatePage() {
                       placeholder="Contoh: 0123456789"
                       className="w-full p-4 border-2 border-slate-200 rounded-xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-lg transition font-medium text-slate-800 placeholder:text-slate-350"
                       value={teacherPhone}
-                      onChange={(e) => setTeacherPhone(e.target.value)}
-                      required
+                      onChange={(e) => {
+                        const digits = normalizeTeacherPhone(e.target.value);
+                        setTeacherPhone(digits);
+                        if (digits) setSchoolRefNo('');
+                      }}
+                      inputMode="numeric"
                     />
                   </div>
                 </div>
